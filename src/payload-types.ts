@@ -93,8 +93,18 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    home: Home;
+    about: About;
+    contact: Contact;
+    siteSettings: SiteSetting;
+  };
+  globalsSelect: {
+    home: HomeSelect<false> | HomeSelect<true>;
+    about: AboutSelect<false> | AboutSelect<true>;
+    contact: ContactSelect<false> | ContactSelect<true>;
+    siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -462,6 +472,214 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home".
+ */
+export interface Home {
+  id: number;
+  heroHeadline: string;
+  heroSubtext: string;
+  heroImage: number | Media;
+  heroCtaPrimaryLabel: string;
+  heroCtaSecondaryLabel: string;
+  aboutHeading: string;
+  aboutText: string;
+  aboutCtaLabel: string;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  services?:
+    | {
+        number: string;
+        title: string;
+        description: string;
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  credits?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  portfolioHeading: string;
+  portfolioText: string;
+  ctaHeading: string;
+  ctaText: string;
+  ctaButtonLabel: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about".
+ */
+export interface About {
+  id: number;
+  heroImage: number | Media;
+  heroHeadline: string;
+  heroSubtext: string;
+  introParagraphs?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  services?:
+    | {
+        number: string;
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  milestones?:
+    | {
+        year: string;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  detailImage: number | Media;
+  ctaLabel: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact".
+ */
+export interface Contact {
+  id: number;
+  address: string;
+  email: string;
+  phone: string;
+  hours: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteSettings".
+ */
+export interface SiteSetting {
+  id: number;
+  siteName: string;
+  siteUrl: string;
+  defaultSeoDescription: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home_select".
+ */
+export interface HomeSelect<T extends boolean = true> {
+  heroHeadline?: T;
+  heroSubtext?: T;
+  heroImage?: T;
+  heroCtaPrimaryLabel?: T;
+  heroCtaSecondaryLabel?: T;
+  aboutHeading?: T;
+  aboutText?: T;
+  aboutCtaLabel?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  services?:
+    | T
+    | {
+        number?: T;
+        title?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
+  credits?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  portfolioHeading?: T;
+  portfolioText?: T;
+  ctaHeading?: T;
+  ctaText?: T;
+  ctaButtonLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about_select".
+ */
+export interface AboutSelect<T extends boolean = true> {
+  heroImage?: T;
+  heroHeadline?: T;
+  heroSubtext?: T;
+  introParagraphs?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  services?:
+    | T
+    | {
+        number?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  milestones?:
+    | T
+    | {
+        year?: T;
+        text?: T;
+        id?: T;
+      };
+  detailImage?: T;
+  ctaLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact_select".
+ */
+export interface ContactSelect<T extends boolean = true> {
+  address?: T;
+  email?: T;
+  phone?: T;
+  hours?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteSettings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  siteUrl?: T;
+  defaultSeoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

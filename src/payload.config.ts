@@ -10,6 +10,10 @@ import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Projects } from './collections/Projects'
 import { Messages } from './collections/Messages'
+import { Home } from './globals/Home'
+import { About } from './globals/About'
+import { Contact } from './globals/Contact'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,6 +26,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Categories, Media, Projects, Messages],
+  globals: [Home, About, Contact, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
