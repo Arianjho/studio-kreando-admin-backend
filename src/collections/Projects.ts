@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { triggerRevalidate } from "../utilities/triggerRevalidate";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
@@ -11,6 +12,10 @@ export const Projects: CollectionConfig = {
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
+  },
+  hooks: {
+    afterChange: [async () => { await triggerRevalidate("projects"); }],
+    afterDelete: [async () => { await triggerRevalidate("projects"); }],
   },
   fields: [
     {

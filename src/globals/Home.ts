@@ -1,10 +1,14 @@
 import type { GlobalConfig } from "payload";
+import { triggerRevalidate } from "../utilities/triggerRevalidate";
 
 export const Home: GlobalConfig = {
   slug: "home",
   access: {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
+  },
+  hooks: {
+    afterChange: [async () => { await triggerRevalidate("home"); }],
   },
   fields: [
     { name: "heroHeadline", type: "text", required: true },

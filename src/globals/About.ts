@@ -1,10 +1,14 @@
 import type { GlobalConfig } from "payload";
+import { triggerRevalidate } from "../utilities/triggerRevalidate";
 
 export const About: GlobalConfig = {
   slug: "about",
   access: {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
+  },
+  hooks: {
+    afterChange: [async () => { await triggerRevalidate("about"); }],
   },
   fields: [
     { name: "heroImage", type: "upload", relationTo: "media", required: true },
