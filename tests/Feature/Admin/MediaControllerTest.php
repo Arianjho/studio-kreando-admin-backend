@@ -37,14 +37,18 @@ class MediaControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(route('admin.media.store'), [
-            'file' => UploadedFile::fake()->image('foto.jpg'),
+            'file' => UploadedFile::fake()->image('foto.jpg', 800, 600),
             'alt' => 'Texto alternativo',
         ]);
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('media', ['alt' => 'Texto alternativo']);
+        $this->assertDatabaseHas('media', [
+            'alt' => 'Texto alternativo',
+            'width' => 800,
+            'height' => 600,
+        ]);
     }
 
     public function test_authenticated_user_can_update_media_alt_text(): void

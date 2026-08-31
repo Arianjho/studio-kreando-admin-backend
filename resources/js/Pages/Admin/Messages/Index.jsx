@@ -49,7 +49,7 @@ export default function MessagesIndex({ messages }) {
                     <TableHeader>
                         <TableRow>
                             <TableHead className="px-6">Remitente</TableHead>
-                            <TableHead className="px-6">Asunto</TableHead>
+                            <TableHead className="px-6">Tipo de proyecto</TableHead>
                             <TableHead className="px-6">Fecha</TableHead>
                             <TableHead className="px-6">Estado</TableHead>
                             <TableHead className="px-6 text-right">Acciones</TableHead>
@@ -69,7 +69,7 @@ export default function MessagesIndex({ messages }) {
                                     <p className="font-medium">{message.name}</p>
                                     <p className="text-xs text-muted-foreground">{message.email}</p>
                                 </TableCell>
-                                <TableCell className="px-6 py-3">{message.subject}</TableCell>
+                                <TableCell className="px-6 py-3">{message.project_type}</TableCell>
                                 <TableCell className="px-6 py-3 text-muted-foreground">
                                     {new Date(message.created_at).toLocaleDateString('es-PE', {
                                         day: '2-digit',
@@ -129,13 +129,34 @@ export default function MessagesIndex({ messages }) {
                                         <Mail className="size-5" />
                                     </div>
                                     <div className="min-w-0 text-left">
-                                        <DialogTitle>{viewingMessage.subject}</DialogTitle>
+                                        <DialogTitle>{viewingMessage.project_type}</DialogTitle>
                                         <DialogDescription>
                                             {viewingMessage.name} · {viewingMessage.email}
                                         </DialogDescription>
                                     </div>
                                 </div>
                             </DialogHeader>
+
+                            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-xl bg-secondary/60 p-4 text-sm">
+                                {[
+                                    ['Intervención', viewingMessage.intervention],
+                                    ['Ubicación', viewingMessage.location],
+                                    [
+                                        'Servicios',
+                                        viewingMessage.services?.length ? viewingMessage.services.join(', ') : null,
+                                    ],
+                                    ['Presupuesto', viewingMessage.budget],
+                                    ['Plazo', viewingMessage.timeline],
+                                ]
+                                    .filter(([, value]) => value)
+                                    .map(([label, value]) => (
+                                        <div key={label} className="contents">
+                                            <dt className="text-muted-foreground">{label}</dt>
+                                            <dd className="text-foreground">{value}</dd>
+                                        </div>
+                                    ))}
+                            </dl>
+
                             <p className="whitespace-pre-line text-sm text-muted-foreground">{viewingMessage.message}</p>
                             <DialogFooter>
                                 <Button

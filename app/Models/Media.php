@@ -13,7 +13,12 @@ class Media extends Model
 
     protected $table = 'media';
 
-    protected $fillable = ['disk', 'path', 'alt', 'mime_type', 'size'];
+    protected $fillable = ['disk', 'path', 'alt', 'mime_type', 'size', 'width', 'height'];
+
+    protected $casts = [
+        'width' => 'integer',
+        'height' => 'integer',
+    ];
 
     protected $appends = ['url'];
 

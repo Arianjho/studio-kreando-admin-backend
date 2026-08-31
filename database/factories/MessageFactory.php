@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Http\Requests\Api\StoreMessageRequest;
 use App\Models\Message;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,7 +21,12 @@ class MessageFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'email' => $this->faker->safeEmail(),
-            'subject' => $this->faker->sentence(4),
+            'project_type' => $this->faker->randomElement(StoreMessageRequest::PROJECT_TYPES),
+            'intervention' => $this->faker->randomElement(StoreMessageRequest::INTERVENTIONS),
+            'location' => $this->faker->city(),
+            'services' => $this->faker->randomElements(StoreMessageRequest::SERVICES, 2),
+            'budget' => $this->faker->randomElement(StoreMessageRequest::BUDGETS),
+            'timeline' => $this->faker->randomElement(StoreMessageRequest::TIMELINES),
             'message' => $this->faker->paragraph(),
             'read' => false,
         ];

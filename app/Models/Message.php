@@ -11,9 +11,21 @@ class Message extends Model
     /** @use HasFactory<\Database\Factories\MessageFactory> */
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'email', 'subject', 'message', 'read'];
+    protected $fillable = [
+        'name',
+        'email',
+        'project_type',
+        'intervention',
+        'location',
+        'services',
+        'budget',
+        'timeline',
+        'message',
+        'read',
+    ];
 
     protected $casts = [
+        'services' => 'array',
         'read' => 'boolean',
     ];
 }

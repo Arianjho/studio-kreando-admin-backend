@@ -15,12 +15,16 @@ class MediaUploadService
     {
         $path = $file->store('media', $disk);
 
+        $dimensions = @getimagesize($file->getRealPath());
+
         return Media::create([
             'disk' => $disk,
             'path' => $path,
             'alt' => $alt,
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
+            'width' => $dimensions[0] ?? null,
+            'height' => $dimensions[1] ?? null,
         ]);
     }
 }

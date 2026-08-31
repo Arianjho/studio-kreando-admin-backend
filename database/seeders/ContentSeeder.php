@@ -48,6 +48,8 @@ class ContentSeeder extends Seeder
         $extension = $sourcePath ? pathinfo($sourcePath, PATHINFO_EXTENSION) : 'jpg';
         $storedPath = 'media/'.Str::uuid().'.'.$extension;
 
+        $dimensions = $sourcePath ? @getimagesize($sourcePath) : false;
+
         if ($sourcePath) {
             Storage::disk('public')->put($storedPath, file_get_contents($sourcePath));
         }
@@ -58,6 +60,8 @@ class ContentSeeder extends Seeder
             'alt' => $alt,
             'mime_type' => 'image/jpeg',
             'size' => $sourcePath ? filesize($sourcePath) : 0,
+            'width' => $dimensions[0] ?? null,
+            'height' => $dimensions[1] ?? null,
         ]);
     }
 
