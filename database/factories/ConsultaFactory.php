@@ -31,13 +31,19 @@ class ConsultaFactory extends Factory
             'budget' => $this->faker->randomElement($options['budget']),
             'timeline' => $this->faker->randomElement($options['timeline']),
             'message' => $this->faker->paragraph(),
-            'read' => false,
+            'status' => 'nuevo',
             'responded_at' => null,
+            'closed_at' => null,
         ];
     }
 
-    public function responded(): static
+    public function contactado(): static
     {
-        return $this->state(fn () => ['read' => true, 'responded_at' => now()]);
+        return $this->state(fn () => ['status' => 'contactado', 'responded_at' => now()]);
+    }
+
+    public function cerrado(): static
+    {
+        return $this->state(fn () => ['status' => 'cerrado', 'closed_at' => now()]);
     }
 }

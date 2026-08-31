@@ -34,15 +34,15 @@ class DashboardControllerTest extends TestCase
         Category::factory()->create();
         Project::factory()->count(3)->for($category)->create(['featured' => false]);
         Project::factory()->for($category)->create(['featured' => true]);
-        Consulta::factory()->count(2)->create(['read' => false]);
-        Consulta::factory()->create(['read' => true]);
+        Consulta::factory()->count(2)->create();
+        Consulta::factory()->contactado()->create();
 
         $this->actingAs($user)
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('Admin/Dashboard')
-                ->where('stats.unreadConsultas', 2)
+                ->where('stats.nuevasConsultas', 2)
                 ->where('stats.totalConsultas', 3)
                 ->where('stats.projects', 4)
                 ->where('stats.featuredProjects', 1)

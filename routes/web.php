@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
     Route::get('consultas', [ConsultaController::class, 'index'])->name('consultas.index');
-    Route::patch('consultas/{consulta}/read', [ConsultaController::class, 'markRead'])->name('consultas.read');
+    Route::patch('consultas/{consulta}/close', [ConsultaController::class, 'markClosed'])->name('consultas.close');
     Route::post('consultas/{consulta}/whatsapp', [ConsultaController::class, 'sendWhatsApp'])->name('consultas.whatsapp');
     Route::delete('consultas/{consulta}', [ConsultaController::class, 'destroy'])->name('consultas.destroy');
 

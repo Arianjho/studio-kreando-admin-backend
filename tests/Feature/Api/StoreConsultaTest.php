@@ -39,7 +39,7 @@ class StoreConsultaTest extends TestCase
         $this->assertSame('Vivienda', $consulta->project_type);
         $this->assertSame('Barranco, Lima', $consulta->location);
         $this->assertSame(['Anteproyecto y diseño', 'Dirección de obra'], $consulta->services);
-        $this->assertFalse($consulta->read);
+        $this->assertSame('nuevo', $consulta->status);
         $this->assertNull($consulta->responded_at);
     }
 

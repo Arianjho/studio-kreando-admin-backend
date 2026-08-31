@@ -7,6 +7,7 @@ import { Badge } from '@/Components/ui/badge';
 import StatCard from '@/Components/ui/StatCard';
 import BarChart from '@/Components/ui/BarChart';
 import Logo from '@/Components/Logo';
+import { statusOf } from '@/lib/consulta';
 
 function formatDate(value) {
     return new Date(value).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -30,12 +31,12 @@ export default function Dashboard({ stats, consultasByMonth, recentConsultas }) 
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <StatCard
-                        label="Consultas sin leer"
-                        value={stats.unreadConsultas}
+                        label="Consultas nuevas"
+                        value={stats.nuevasConsultas}
                         hint={`${stats.totalConsultas} en total`}
                         icon={Mail}
                         href={route('admin.consultas.index')}
-                        accent={stats.unreadConsultas > 0 ? 'brand' : 'muted'}
+                        accent={stats.nuevasConsultas > 0 ? 'brand' : 'muted'}
                     />
                     <StatCard
                         label="Proyectos"
@@ -94,13 +95,9 @@ export default function Dashboard({ stats, consultasByMonth, recentConsultas }) 
                                             {consulta.project_type} · {formatDate(consulta.created_at)}
                                         </p>
                                     </div>
-                                    {consulta.responded_at ? (
-                                        <Badge variant="success" className="shrink-0">
-                                            Respondida
-                                        </Badge>
-                                    ) : (
-                                        !consulta.read && <Badge className="shrink-0">Nueva</Badge>
-                                    )}
+                                    <Badge variant={statusOf(consulta).variant} className="shrink-0">
+                                        {statusOf(consulta).label}
+                                    </Badge>
                                 </Link>
                             ))}
                         </CardContent>

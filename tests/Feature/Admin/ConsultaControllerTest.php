@@ -51,24 +51,18 @@ class ConsultaControllerTest extends TestCase
                 ->where('consultas.data.0.name', 'Lucía Fernández'));
     }
 
-    public function test_status_filter_separates_new_read_and_responded(): void
+    public function test_status_filter_separates_nuevo_contactado_and_cerrado(): void
     {
         $user = User::factory()->create();
-        Consulta::factory()->create(['read' => false]);
-        Consulta::factory()->create(['read' => true]);
-        Consulta::factory()->responded()->create();
+        Consulta::factory()->create();
+        Consulta::factory()->contactado()->create();
+        Consulta::factory()->cerrado()->create();
 
-        $this->actingAs($user)
-            ->get(route('admin.consultas.index', ['status' => 'new']))
-            ->assertInertia(fn ($page) => $page->where('consultas.total', 1));
-
-        $this->actingAs($user)
-            ->get(route('admin.consultas.index', ['status' => 'read']))
-            ->assertInertia(fn ($page) => $page->where('consultas.total', 1));
-
-        $this->actingAs($user)
-            ->get(route('admin.consultas.index', ['status' => 'responded']))
-            ->assertInertia(fn ($page) => $page->where('consultas.total', 1));
+        foreach (['nuevo', 'contactado', 'cerrado'] as $status) {
+            $this->actingAs($user)
+                ->get(route('admin.consultas.index', ['status' => $status]))
+                ->assertInertia(fn ($page) => $page->where('consultas.total', 1));
+        }
     }
 
     public function test_index_exposes_whatsapp_template_and_enabled_flag(): void
@@ -82,14 +76,19 @@ class ConsultaControllerTest extends TestCase
                 ->where('whatsappEnabled', true));
     }
 
-    public function test_authenticated_user_can_mark_consulta_as_read(): void
+    public function test_authenticated_user_can_mark_consulta_closed_from_any_state(): void
     {
         $user = User::factory()->create();
-        $consulta = Consulta::factory()->create(['read' => false]);
+        $nueva = Consulta::factory()->create();
+        $contactada = Consulta::factory()->contactado()->create();
 
-        $this->actingAs($user)->patch(route('admin.consultas.read', $consulta))->assertRedirect();
+        foreach ([$nueva, $contactada] as $consulta) {
+            $this->actingAs($user)->patch(route('admin.consultas.close', $consulta))->assertRedirect();
 
-        $this->assertTrue($consulta->fresh()->read);
+            $consulta->refresh();
+            $this->assertSame('cerrado', $consulta->status);
+            $this->assertNotNull($consulta->closed_at);
+        }
     }
 
     public function test_authenticated_user_can_delete_consulta(): void
@@ -102,14 +101,14 @@ class ConsultaControllerTest extends TestCase
         $this->assertSoftDeleted($consulta);
     }
 
-    public function test_sending_whatsapp_calls_evolution_api_and_marks_responded(): void
+    public function test_sending_whatsapp_calls_evolution_api_and_marks_contactado(): void
     {
         Http::fake([
             'wpp.test/*' => Http::response(['key' => ['id' => 'ABC']], 201),
         ]);
 
         $user = User::factory()->create();
-        $consulta = Consulta::factory()->create(['phone' => '987654321', 'read' => false]);
+        $consulta = Consulta::factory()->create(['phone' => '987654321']);
 
         $this->actingAs($user)
             ->post(route('admin.consultas.whatsapp', $consulta), ['message' => 'Hola, te escribo por tu consulta.'])
@@ -125,7 +124,7 @@ class ConsultaControllerTest extends TestCase
 
         $consulta->refresh();
         $this->assertNotNull($consulta->responded_at);
-        $this->assertTrue($consulta->read);
+        $this->assertSame('contactado', $consulta->status);
         $this->assertDatabaseHas('consulta_whatsapp_messages', [
             'consulta_id' => $consulta->id,
             'user_id' => $user->id,
@@ -148,7 +147,9 @@ class ConsultaControllerTest extends TestCase
             ->assertRedirect()
             ->assertSessionHas('error');
 
-        $this->assertNull($consulta->fresh()->responded_at);
+        $consulta->refresh();
+        $this->assertNull($consulta->responded_at);
+        $this->assertSame('nuevo', $consulta->status);
         $this->assertDatabaseHas('consulta_whatsapp_messages', [
             'consulta_id' => $consulta->id,
             'status' => 'failed',

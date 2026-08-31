@@ -13,6 +13,8 @@ class Consulta extends Model
     /** @use HasFactory<ConsultaFactory> */
     use HasFactory, SoftDeletes;
 
+    public const STATUSES = ['nuevo', 'contactado', 'cerrado'];
+
     protected $fillable = [
         'name',
         'phone',
@@ -23,14 +25,15 @@ class Consulta extends Model
         'budget',
         'timeline',
         'message',
-        'read',
+        'status',
         'responded_at',
+        'closed_at',
     ];
 
     protected $casts = [
         'services' => 'array',
-        'read' => 'boolean',
         'responded_at' => 'datetime',
+        'closed_at' => 'datetime',
     ];
 
     /**

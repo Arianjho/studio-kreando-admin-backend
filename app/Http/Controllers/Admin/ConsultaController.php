@@ -19,7 +19,7 @@ class ConsultaController extends Controller
     {
         $search = trim((string) $request->query('search', '')) ?: null;
         $projectType = trim((string) $request->query('project_type', '')) ?: null;
-        $status = in_array($request->query('status'), ['new', 'read', 'responded'], true)
+        $status = in_array($request->query('status'), Consulta::STATUSES, true)
             ? $request->query('status')
             : null;
 
@@ -33,9 +33,7 @@ class ConsultaController extends Controller
                 });
             })
             ->when($projectType, fn (Builder $query, string $type) => $query->where('project_type', $type))
-            ->when($status === 'new', fn (Builder $query) => $query->where('read', false))
-            ->when($status === 'read', fn (Builder $query) => $query->where('read', true)->whereNull('responded_at'))
-            ->when($status === 'responded', fn (Builder $query) => $query->whereNotNull('responded_at'))
+            ->when($status, fn (Builder $query, string $value) => $query->where('status', $value))
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -53,11 +51,11 @@ class ConsultaController extends Controller
         ]);
     }
 
-    public function markRead(Consulta $consulta): RedirectResponse
+    public function markClosed(Consulta $consulta): RedirectResponse
     {
-        $consulta->update(['read' => true]);
+        $consulta->update(['status' => 'cerrado', 'closed_at' => now()]);
 
-        return back()->with('success', 'Consulta marcada como leída');
+        return back()->with('success', 'Consulta marcada como cerrada');
     }
 
     public function sendWhatsApp(Request $request, Consulta $consulta, WhatsAppService $whatsapp): RedirectResponse
@@ -88,7 +86,11 @@ class ConsultaController extends Controller
             return back()->with('error', 'No se pudo enviar el WhatsApp. Revisa la conexión de la instancia.');
         }
 
-        $consulta->update(['read' => true, 'responded_at' => now()]);
+        $consulta->update([
+            'responded_at' => now(),
+            // Enviar un WhatsApp mueve la consulta a "contactado" salvo que ya esté cerrada.
+            'status' => $consulta->status === 'cerrado' ? 'cerrado' : 'contactado',
+        ]);
 
         return back()->with('success', 'WhatsApp enviado a '.$consulta->name);
     }

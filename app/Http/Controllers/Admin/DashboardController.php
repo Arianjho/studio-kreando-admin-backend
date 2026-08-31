@@ -17,7 +17,7 @@ class DashboardController extends Controller
     {
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                'unreadConsultas' => Consulta::where('read', false)->count(),
+                'nuevasConsultas' => Consulta::where('status', 'nuevo')->count(),
                 'totalConsultas' => Consulta::count(),
                 'projects' => Project::count(),
                 'featuredProjects' => Project::where('featured', true)->count(),
@@ -27,7 +27,7 @@ class DashboardController extends Controller
             'consultasByMonth' => $this->consultasByMonth(),
             'recentConsultas' => Consulta::latest()
                 ->take(5)
-                ->get(['id', 'name', 'project_type', 'read', 'responded_at', 'created_at']),
+                ->get(['id', 'name', 'project_type', 'status', 'created_at']),
         ]);
     }
 
