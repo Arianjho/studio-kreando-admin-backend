@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\SiteSetting;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group('Contenido', 'Paginas de contenido singleton (una sola fila por pagina).')]
 class SiteSettingController extends Controller
 {
     public function show(): JsonResponse

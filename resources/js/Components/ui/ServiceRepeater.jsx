@@ -1,6 +1,7 @@
+import { Plus, Trash2, Upload } from 'lucide-react';
 import TextInput from '@/Components/TextInput';
 import Textarea from '@/Components/Textarea';
-import { PlusIcon, TrashIcon, UploadIcon } from '@/Icons';
+import { Button } from '@/Components/ui/button';
 
 export default function ServiceRepeater({ items, onChange }) {
     const updateField = (index, key, value) => {
@@ -11,9 +12,7 @@ export default function ServiceRepeater({ items, onChange }) {
         if (!file) {
             return;
         }
-        onChange(
-            items.map((item, i) => (i === index ? { ...item, file, url: URL.createObjectURL(file) } : item)),
-        );
+        onChange(items.map((item, i) => (i === index ? { ...item, file, url: URL.createObjectURL(file) } : item)));
     };
 
     const removeItem = (index) => {
@@ -21,28 +20,22 @@ export default function ServiceRepeater({ items, onChange }) {
     };
 
     const addItem = () => {
-        onChange([
-            ...items,
-            { number: String(items.length + 1).padStart(2, '0'), title: '', description: '', url: null, file: null },
-        ]);
+        onChange([...items, { number: String(items.length + 1).padStart(2, '0'), title: '', description: '', url: null, file: null }]);
     };
 
     return (
         <div className="space-y-3">
             {items.map((item, index) => (
-                <div
-                    key={index}
-                    className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-800"
-                >
-                    <div className="flex-shrink-0">
+                <div key={index} className="flex items-start gap-3 rounded-lg border border-border p-3">
+                    <div className="shrink-0">
                         {item.url ? (
                             <img src={item.url} alt="" className="h-16 w-16 rounded-lg object-cover" />
                         ) : (
-                            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-gray-400 dark:bg-white/5">
-                                <UploadIcon className="h-5 w-5" />
+                            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                                <Upload className="size-5" />
                             </div>
                         )}
-                        <label className="mt-1.5 block cursor-pointer text-center text-[11px] text-brand-500 hover:underline">
+                        <label className="mt-1.5 block cursor-pointer text-center text-[11px] text-primary hover:underline">
                             Cambiar
                             <input
                                 type="file"
@@ -55,54 +48,36 @@ export default function ServiceRepeater({ items, onChange }) {
 
                     <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
                         <div>
-                            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                                Número
-                            </label>
-                            <TextInput
-                                value={item.number ?? ''}
-                                onChange={(event) => updateField(index, 'number', event.target.value)}
-                            />
+                            <label className="mb-1 block text-xs font-medium text-muted-foreground">Número</label>
+                            <TextInput value={item.number ?? ''} onChange={(event) => updateField(index, 'number', event.target.value)} />
                         </div>
                         <div>
-                            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                                Título
-                            </label>
-                            <TextInput
-                                value={item.title ?? ''}
-                                onChange={(event) => updateField(index, 'title', event.target.value)}
-                            />
+                            <label className="mb-1 block text-xs font-medium text-muted-foreground">Título</label>
+                            <TextInput value={item.title ?? ''} onChange={(event) => updateField(index, 'title', event.target.value)} />
                         </div>
                         <div className="sm:col-span-3">
-                            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                                Descripción
-                            </label>
-                            <Textarea
-                                rows={2}
-                                value={item.description ?? ''}
-                                onChange={(event) => updateField(index, 'description', event.target.value)}
-                            />
+                            <label className="mb-1 block text-xs font-medium text-muted-foreground">Descripción</label>
+                            <Textarea rows={2} value={item.description ?? ''} onChange={(event) => updateField(index, 'description', event.target.value)} />
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
-                        onClick={() => removeItem(index)}
+                        variant="ghost"
+                        size="icon"
                         aria-label="Quitar"
-                        className="mt-5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-error-500 hover:bg-error-50 dark:hover:bg-error-500/10"
+                        className="mt-5 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => removeItem(index)}
                     >
-                        <TrashIcon className="h-4 w-4" />
-                    </button>
+                        <Trash2 className="size-4" />
+                    </Button>
                 </div>
             ))}
 
-            <button
-                type="button"
-                onClick={addItem}
-                className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2 text-sm text-gray-500 hover:border-brand-300 hover:text-brand-500 dark:border-gray-700 dark:text-gray-400"
-            >
-                <PlusIcon className="h-4 w-4" />
+            <Button type="button" variant="outline" className="border-dashed" onClick={addItem}>
+                <Plus className="size-4" />
                 Agregar servicio
-            </button>
+            </Button>
         </div>
     );
 }

@@ -22,9 +22,9 @@ export default function ConfirmPassword() {
         <GuestLayout>
             <Head title="Confirmar contraseña" />
 
-            <h1 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">Confirmar contraseña</h1>
+            <h1 className="mb-2 font-display text-xl font-semibold">Confirmar contraseña</h1>
 
-            <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mb-6 text-sm text-muted-foreground">
                 Esta es un área segura de la aplicación. Confirma tu contraseña antes de continuar.
             </div>
 

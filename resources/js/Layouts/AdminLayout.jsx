@@ -1,48 +1,39 @@
 import { Head } from '@inertiajs/react';
-import { SidebarProvider, useSidebar } from '@/Context/SidebarContext';
+import { SidebarInset, SidebarProvider } from '@/Components/ui/sidebar';
+import { Toaster } from '@/Components/ui/sonner';
 import AppSidebar from '@/Layouts/AppSidebar';
-import AppHeader from '@/Layouts/AppHeader';
-import Backdrop from '@/Layouts/Backdrop';
-import Footer from '@/Layouts/Footer';
-import FlashBanner from '@/Components/ui/FlashBanner';
+import TopNav from '@/Layouts/TopNav';
+import FlashToaster from '@/Components/ui/FlashToaster';
 
-function LayoutContent({ title, header, children }) {
-    const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-
-    return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Head title={title} />
-            <AppSidebar />
-            <Backdrop />
-            <div
-                className={`flex flex-1 flex-col transition-all duration-300 ease-in-out ${
-                    isExpanded || isHovered ? 'lg:ml-[290px]' : 'lg:ml-[90px]'
-                }`}
-            >
-                <AppHeader />
-                <main className="mx-auto w-full max-w-(--breakpoint-2xl) flex-1 p-4 md:p-6">
-                    {header && (
-                        <div className="mb-6">
-                            <h1 className="text-title-sm font-display font-semibold text-gray-800 dark:text-white/90">
-                                {header}
-                            </h1>
-                        </div>
-                    )}
-                    <FlashBanner />
-                    {children}
-                </main>
-                <Footer />
-            </div>
-        </div>
-    );
-}
-
-export default function AdminLayout({ title, header, children }) {
+export default function AdminLayout({ title, header, description, actions, children }) {
     return (
         <SidebarProvider>
-            <LayoutContent title={title} header={header}>
-                {children}
-            </LayoutContent>
+            <Head title={title} />
+            <Toaster richColors position="top-right" />
+            <FlashToaster />
+
+            <div className="flex min-h-screen w-full bg-background">
+                <AppSidebar />
+                <SidebarInset className="min-w-0 bg-background">
+                    <TopNav />
+                    <main className="min-w-0 flex-1 px-3 py-5 sm:px-6 sm:py-7">
+                        <div className="mx-auto w-full max-w-7xl">
+                            {(header || description || actions) && (
+                                <header className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+                                    <div className="min-w-0">
+                                        {header && (
+                                            <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">{header}</h1>
+                                        )}
+                                        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+                                    </div>
+                                    {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+                                </header>
+                            )}
+                            {children}
+                        </div>
+                    </main>
+                </SidebarInset>
+            </div>
         </SidebarProvider>
     );
 }

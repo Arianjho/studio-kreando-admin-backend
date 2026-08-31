@@ -1,185 +1,161 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { useSidebar } from '@/Context/SidebarContext';
 import {
-    BuildingIcon,
-    ChevronDownIcon,
-    FolderIcon,
-    GridIcon,
-    HorizontalDotsIcon,
-    ImageIcon,
-    MailIcon,
-    SettingsIcon,
-    UsersIcon,
-} from '@/Icons';
+    Building2,
+    ChevronDown,
+    FolderKanban,
+    Image as ImageIcon,
+    LayoutGrid,
+    Mail,
+    Settings,
+    Sparkles,
+    Users,
+} from 'lucide-react';
 
-const navItems = [
-    { icon: <GridIcon />, name: 'Panel', path: 'admin.dashboard' },
-    { icon: <FolderIcon />, name: 'Categorías', path: 'admin.categories.index' },
-    { icon: <BuildingIcon />, name: 'Proyectos', path: 'admin.projects.index' },
-    { icon: <MailIcon />, name: 'Mensajes', path: 'admin.messages.index' },
-    { icon: <ImageIcon />, name: 'Multimedia', path: 'admin.media.index' },
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
+    useSidebar,
+} from '@/Components/ui/sidebar';
+
+const navGroups = [
     {
-        icon: <SettingsIcon />,
-        name: 'Contenido del sitio',
-        subItems: [
-            { name: 'Inicio', path: 'admin.content.home' },
-            { name: 'Nosotros', path: 'admin.content.about' },
-            { name: 'Contacto', path: 'admin.content.contact' },
-            { name: 'Ajustes generales', path: 'admin.content.settings' },
+        label: 'General',
+        items: [{ title: 'Panel', path: 'admin.dashboard', icon: LayoutGrid }],
+    },
+    {
+        label: 'Portafolio',
+        items: [
+            { title: 'Categorías', path: 'admin.categories.index', icon: FolderKanban },
+            { title: 'Proyectos', path: 'admin.projects.index', icon: Building2 },
+            { title: 'Multimedia', path: 'admin.media.index', icon: ImageIcon },
         ],
     },
-    { icon: <UsersIcon />, name: 'Usuarios', path: 'admin.users.index' },
+    {
+        label: 'Comunicación',
+        items: [{ title: 'Mensajes', path: 'admin.messages.index', icon: Mail }],
+    },
+    {
+        label: 'Sistema',
+        items: [
+            {
+                title: 'Contenido del sitio',
+                icon: Settings,
+                subItems: [
+                    { title: 'Inicio', path: 'admin.content.home' },
+                    { title: 'Nosotros', path: 'admin.content.about' },
+                    { title: 'Contacto', path: 'admin.content.contact' },
+                    { title: 'Ajustes generales', path: 'admin.content.settings' },
+                ],
+            },
+            { title: 'Usuarios', path: 'admin.users.index', icon: Users },
+        ],
+    },
 ];
 
 export default function AppSidebar() {
-    const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
     const { url } = usePage();
-
-    const [openSubmenu, setOpenSubmenu] = useState(null);
-    const [subMenuHeight, setSubMenuHeight] = useState({});
-    const subMenuRefs = useRef({});
+    const { state } = useSidebar();
+    const collapsed = state === 'collapsed';
+    const [openGroup, setOpenGroup] = useState(null);
 
     const isActive = useCallback(
         (routeName) => route().has(routeName) && url.startsWith(new URL(route(routeName)).pathname),
         [url],
     );
 
-    useEffect(() => {
-        let matched = false;
-        navItems.forEach((nav, index) => {
-            nav.subItems?.forEach((subItem) => {
-                if (isActive(subItem.path)) {
-                    setOpenSubmenu(index);
-                    matched = true;
-                }
-            });
-        });
-        if (!matched) {
-            setOpenSubmenu(null);
-        }
-    }, [url, isActive]);
+    const flatSubItems = useMemo(
+        () => navGroups.flatMap((group) => group.items).filter((item) => item.subItems),
+        [],
+    );
 
     useEffect(() => {
-        if (openSubmenu !== null && subMenuRefs.current[openSubmenu]) {
-            setSubMenuHeight((prev) => ({
-                ...prev,
-                [openSubmenu]: subMenuRefs.current[openSubmenu]?.scrollHeight || 0,
-            }));
-        }
-    }, [openSubmenu]);
-
-    const showLabels = isExpanded || isHovered || isMobileOpen;
+        const match = flatSubItems.find((item) => item.subItems.some((sub) => isActive(sub.path)));
+        setOpenGroup(match ? match.title : null);
+    }, [url, isActive, flatSubItems]);
 
     return (
-        <aside
-            className={`fixed left-0 top-0 z-50 mt-16 flex h-screen flex-col border-r border-gray-200 bg-white px-5 text-gray-900 transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900 lg:mt-0
-                ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
-                ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
-                lg:translate-x-0`}
-            onMouseEnter={() => !isExpanded && setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <div className={`flex py-8 ${showLabels ? 'justify-start' : 'lg:justify-center'}`}>
-                <Link href={route('admin.dashboard')} className="text-lg font-bold text-gray-900 dark:text-white">
-                    {showLabels ? 'Studio Kreando' : 'SK'}
+        <Sidebar collapsible="icon">
+            <SidebarHeader className="px-3 py-4">
+                <Link href={route('admin.dashboard')} className="flex items-center gap-2.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand text-sidebar-primary-foreground">
+                        <Sparkles className="size-5" />
+                    </span>
+                    {!collapsed && (
+                        <span className="min-w-0 truncate font-display text-lg font-extrabold tracking-tight text-sidebar-foreground">
+                            Studio<span className="text-sidebar-primary">Kreando</span>
+                        </span>
+                    )}
                 </Link>
-            </div>
+            </SidebarHeader>
 
-            <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-                <nav className="mb-6">
-                    <h2
-                        className={`mb-4 flex text-xs uppercase leading-5 text-gray-400 ${showLabels ? 'justify-start' : 'lg:justify-center'}`}
-                    >
-                        {showLabels ? 'Menú' : <HorizontalDotsIcon className="size-6" />}
-                    </h2>
-                    <ul className="flex flex-col gap-2">
-                        {navItems.map((nav, index) => (
-                            <li key={nav.name}>
-                                {nav.subItems ? (
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setOpenSubmenu((prev) => (prev === index ? null : index))
-                                        }
-                                        className={`menu-item group w-full cursor-pointer ${
-                                            openSubmenu === index ? 'menu-item-active' : 'menu-item-inactive'
-                                        } ${!showLabels ? 'lg:justify-center' : 'lg:justify-start'}`}
-                                    >
-                                        <span
-                                            className={`menu-item-icon-size ${
-                                                openSubmenu === index
-                                                    ? 'menu-item-icon-active'
-                                                    : 'menu-item-icon-inactive'
-                                            }`}
-                                        >
-                                            {nav.icon}
-                                        </span>
-                                        {showLabels && <span className="menu-item-text">{nav.name}</span>}
-                                        {showLabels && (
-                                            <ChevronDownIcon
-                                                className={`ml-auto h-5 w-5 transition-transform duration-200 ${
-                                                    openSubmenu === index ? 'rotate-180 text-brand-500' : ''
-                                                }`}
-                                            />
-                                        )}
-                                    </button>
-                                ) : (
-                                    route().has(nav.path) && (
-                                        <Link
-                                            href={route(nav.path)}
-                                            className={`menu-item group ${
-                                                isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'
-                                            }`}
-                                        >
-                                            <span
-                                                className={`menu-item-icon-size ${
-                                                    isActive(nav.path)
-                                                        ? 'menu-item-icon-active'
-                                                        : 'menu-item-icon-inactive'
-                                                }`}
+            <SidebarContent>
+                {navGroups.map((group) => (
+                    <SidebarGroup key={group.label}>
+                        <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {group.items.map((item) =>
+                                    item.subItems ? (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton
+                                                onClick={() =>
+                                                    setOpenGroup((prev) => (prev === item.title ? null : item.title))
+                                                }
+                                                isActive={openGroup === item.title}
+                                                tooltip={item.title}
                                             >
-                                                {nav.icon}
-                                            </span>
-                                            {showLabels && <span className="menu-item-text">{nav.name}</span>}
-                                        </Link>
-                                    )
-                                )}
-
-                                {nav.subItems && showLabels && (
-                                    <div
-                                        ref={(el) => (subMenuRefs.current[index] = el)}
-                                        className="overflow-hidden transition-all duration-300"
-                                        style={{
-                                            height: openSubmenu === index ? `${subMenuHeight[index]}px` : '0px',
-                                        }}
-                                    >
-                                        <ul className="ml-9 mt-2 space-y-1">
-                                            {nav.subItems.map(
-                                                (subItem) =>
-                                                    route().has(subItem.path) && (
-                                                        <li key={subItem.name}>
-                                                            <Link
-                                                                href={route(subItem.path)}
-                                                                className={
-                                                                    isActive(subItem.path)
-                                                                        ? 'menu-dropdown-item menu-dropdown-item-active'
-                                                                        : 'menu-dropdown-item menu-dropdown-item-inactive'
-                                                                }
-                                                            >
-                                                                {subItem.name}
-                                                            </Link>
-                                                        </li>
-                                                    ),
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                                <ChevronDown
+                                                    className={`ml-auto size-4 shrink-0 transition-transform duration-200 ${
+                                                        openGroup === item.title ? 'rotate-180' : ''
+                                                    }`}
+                                                />
+                                            </SidebarMenuButton>
+                                            {openGroup === item.title && (
+                                                <SidebarMenuSub>
+                                                    {item.subItems.map(
+                                                        (sub) =>
+                                                            route().has(sub.path) && (
+                                                                <SidebarMenuSubItem key={sub.title}>
+                                                                    <SidebarMenuSubButton asChild isActive={isActive(sub.path)}>
+                                                                        <Link href={route(sub.path)}>{sub.title}</Link>
+                                                                    </SidebarMenuSubButton>
+                                                                </SidebarMenuSubItem>
+                                                            ),
+                                                    )}
+                                                </SidebarMenuSub>
                                             )}
-                                        </ul>
-                                    </div>
+                                        </SidebarMenuItem>
+                                    ) : (
+                                        route().has(item.path) && (
+                                            <SidebarMenuItem key={item.title}>
+                                                <SidebarMenuButton asChild isActive={isActive(item.path)} tooltip={item.title}>
+                                                    <Link href={route(item.path)}>
+                                                        <item.icon />
+                                                        <span>{item.title}</span>
+                                                    </Link>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        )
+                                    ),
                                 )}
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </div>
-        </aside>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                ))}
+            </SidebarContent>
+        </Sidebar>
     );
 }

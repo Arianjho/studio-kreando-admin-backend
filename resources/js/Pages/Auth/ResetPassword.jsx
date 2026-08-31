@@ -25,7 +25,7 @@ export default function ResetPassword({ token, email }) {
         <GuestLayout>
             <Head title="Restablecer contraseña" />
 
-            <h1 className="mb-6 text-xl font-semibold text-gray-800 dark:text-white/90">Restablecer contraseña</h1>
+            <h1 className="mb-6 font-display text-xl font-semibold">Restablecer contraseña</h1>
 
             <form onSubmit={submit} className="space-y-4">
                 <div>

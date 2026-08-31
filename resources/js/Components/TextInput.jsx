@@ -1,9 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { Input } from '@/Components/ui/input';
 
-export default forwardRef(function TextInput(
-    { type = 'text', className = '', isFocused = false, ...props },
-    ref,
-) {
+export default forwardRef(function TextInput({ type = 'text', className = '', isFocused = false, ...props }, ref) {
     const localRef = useRef(null);
 
     useImperativeHandle(ref, () => ({
@@ -16,15 +14,5 @@ export default forwardRef(function TextInput(
         }
     }, [isFocused]);
 
-    return (
-        <input
-            {...props}
-            type={type}
-            className={
-                'h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ' +
-                className
-            }
-            ref={localRef}
-        />
-    );
+    return <Input {...props} type={type} className={className} ref={localRef} />;
 });

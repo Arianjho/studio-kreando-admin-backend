@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\ContactContent;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group('Contenido', 'Paginas de contenido singleton (una sola fila por pagina).')]
 class ContactController extends Controller
 {
     public function show(): JsonResponse

@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\HomeContentResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\HomeContent;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group('Contenido', 'Paginas de contenido singleton (una sola fila por pagina).')]
 class HomeController extends Controller
 {
     public function show(): JsonResponse

@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { Pencil, Plus, Trash2, Upload } from 'lucide-react';
+
 import AdminLayout from '@/Layouts/AdminLayout';
 import FormModal from '@/Components/ui/FormModal';
 import ConfirmModal from '@/Components/ui/ConfirmModal';
 import GalleryEditor from '@/Components/ui/GalleryEditor';
-import Badge from '@/Components/ui/Badge';
+import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import Checkbox from '@/Components/Checkbox';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import Textarea from '@/Components/Textarea';
 import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
-import { PencilIcon, PlusIcon, TrashIcon, UploadIcon } from '@/Icons';
 
-const STATUS_COLORS = {
+const STATUS_VARIANTS = {
     Construido: 'success',
     'En obra': 'warning',
-    'En proyecto': 'brand',
+    'En proyecto': 'default',
 };
 
 const emptyForm = {
@@ -129,10 +133,7 @@ export default function ProjectsIndex({ projects, categories }) {
     const submit = (event) => {
         event.preventDefault();
 
-        const existingGallery = gallery
-            .filter((item) => item.media_id)
-            .map((item) => ({ media_id: item.media_id, alt: item.alt }));
-
+        const existingGallery = gallery.filter((item) => item.media_id).map((item) => ({ media_id: item.media_id, alt: item.alt }));
         const newGalleryItems = gallery.filter((item) => item.file);
 
         const payload = {
@@ -163,104 +164,81 @@ export default function ProjectsIndex({ projects, categories }) {
     };
 
     return (
-        <AdminLayout title="Proyectos" header="Proyectos">
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                    <h2 className="text-base font-medium text-gray-800 dark:text-white/90">
+        <AdminLayout
+            title="Proyectos"
+            header="Proyectos"
+            description="Portafolio de proyectos publicados en el sitio."
+            actions={
+                <Button onClick={openCreate}>
+                    <Plus className="size-4" /> Nuevo proyecto
+                </Button>
+            }
+        >
+            <Card className="overflow-hidden shadow-soft">
+                <div className="flex items-center justify-between border-b border-border px-6 py-4">
+                    <h2 className="text-sm font-medium text-muted-foreground">
                         {projects.length} proyecto{projects.length === 1 ? '' : 's'}
                     </h2>
-                    <button
-                        type="button"
-                        onClick={openCreate}
-                        className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
-                    >
-                        <PlusIcon className="h-4 w-4" />
-                        Nuevo proyecto
-                    </button>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-gray-200 dark:border-gray-800">
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Portada
-                                </th>
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Nombre
-                                </th>
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Categoría
-                                </th>
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Año
-                                </th>
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Estado
-                                </th>
-                                <th className="px-6 py-3 text-right text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Acciones
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {projects.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                        No hay proyectos registrados todavía.
-                                    </td>
-                                </tr>
-                            )}
-                            {projects.map((project) => (
-                                <tr key={project.id} className="border-b border-gray-100 last:border-0 dark:border-gray-800">
-                                    <td className="px-6 py-3">
-                                        <img
-                                            src={project.cover?.url}
-                                            alt={project.cover_alt}
-                                            className="h-12 w-16 rounded-md object-cover"
-                                        />
-                                    </td>
-                                    <td className="px-6 py-3 text-sm font-medium text-gray-800 dark:text-white/90">
-                                        {project.name}
-                                        {project.featured && (
-                                            <span className="ml-2">
-                                                <Badge color="brand">Destacado</Badge>
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
-                                        {project.category?.name}
-                                    </td>
-                                    <td className="px-6 py-3 text-sm text-gray-500 dark:text-gray-400">{project.year}</td>
-                                    <td className="px-6 py-3">
-                                        <Badge color={STATUS_COLORS[project.status] ?? 'gray'}>{project.status}</Badge>
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => openEdit(project)}
-                                                aria-label="Editar"
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
-                                            >
-                                                <PencilIcon className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setDeletingProject(project)}
-                                                aria-label="Eliminar"
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-error-500 transition hover:bg-error-50 dark:hover:bg-error-500/10"
-                                            >
-                                                <TrashIcon className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="px-6">Portada</TableHead>
+                            <TableHead className="px-6">Nombre</TableHead>
+                            <TableHead className="px-6">Categoría</TableHead>
+                            <TableHead className="px-6">Año</TableHead>
+                            <TableHead className="px-6">Estado</TableHead>
+                            <TableHead className="px-6 text-right">Acciones</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {projects.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">
+                                    No hay proyectos registrados todavía.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {projects.map((project) => (
+                            <TableRow key={project.id}>
+                                <TableCell className="px-6 py-3">
+                                    <img src={project.cover?.url} alt={project.cover_alt} className="h-12 w-16 rounded-md object-cover" />
+                                </TableCell>
+                                <TableCell className="px-6 py-3 font-medium">
+                                    {project.name}
+                                    {project.featured && (
+                                        <Badge variant="default" className="ml-2">
+                                            Destacado
+                                        </Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell className="px-6 py-3 text-muted-foreground">{project.category?.name}</TableCell>
+                                <TableCell className="px-6 py-3 text-muted-foreground">{project.year}</TableCell>
+                                <TableCell className="px-6 py-3">
+                                    <Badge variant={STATUS_VARIANTS[project.status] ?? 'outline'}>{project.status}</Badge>
+                                </TableCell>
+                                <TableCell className="px-6 py-3">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button variant="ghost" size="icon" aria-label="Editar" onClick={() => openEdit(project)}>
+                                            <Pencil className="size-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Eliminar"
+                                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={() => setDeletingProject(project)}
+                                        >
+                                            <Trash2 className="size-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Card>
 
             <FormModal
                 isOpen={isFormOpen}
@@ -268,7 +246,7 @@ export default function ProjectsIndex({ projects, categories }) {
                 onSubmit={submit}
                 title={editingProject ? 'Editar proyecto' : 'Nuevo proyecto'}
                 processing={processing}
-                className="max-w-3xl"
+                className="sm:max-w-3xl"
             >
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
@@ -278,6 +256,7 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5 block w-full"
                             value={data.name}
                             onChange={(event) => handleNameChange(event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.name} />
                     </div>
@@ -291,6 +270,8 @@ export default function ProjectsIndex({ projects, categories }) {
                                 setSlugTouched(true);
                                 setData('slug', event.target.value);
                             }}
+                            pattern="[a-z0-9\-]+"
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.slug} />
                     </div>
@@ -301,6 +282,7 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5"
                             value={data.category_id}
                             onChange={(event) => setData('category_id', event.target.value)}
+                            required
                         >
                             <option value="">Seleccione una categoría</option>
                             {categories.map((category) => (
@@ -316,9 +298,12 @@ export default function ProjectsIndex({ projects, categories }) {
                         <TextInput
                             id="year"
                             type="number"
+                            min={1900}
+                            max={2100}
                             className="mt-1.5 block w-full"
                             value={data.year}
                             onChange={(event) => setData('year', event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.year} />
                     </div>
@@ -329,6 +314,7 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5 block w-full"
                             value={data.location}
                             onChange={(event) => setData('location', event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.location} />
                     </div>
@@ -339,6 +325,7 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5 block w-full"
                             value={data.area}
                             onChange={(event) => setData('area', event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.area} />
                     </div>
@@ -349,6 +336,7 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5 block w-full"
                             value={data.program}
                             onChange={(event) => setData('program', event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.program} />
                     </div>
@@ -359,17 +347,13 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5 block w-full"
                             value={data.team}
                             onChange={(event) => setData('team', event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.team} />
                     </div>
                     <div>
                         <InputLabel htmlFor="status" value="Estado" />
-                        <Select
-                            id="status"
-                            className="mt-1.5"
-                            value={data.status}
-                            onChange={(event) => setData('status', event.target.value)}
-                        >
+                        <Select id="status" className="mt-1.5" value={data.status} onChange={(event) => setData('status', event.target.value)}>
                             <option value="Construido">Construido</option>
                             <option value="En obra">En obra</option>
                             <option value="En proyecto">En proyecto</option>
@@ -389,52 +373,42 @@ export default function ProjectsIndex({ projects, categories }) {
                     </div>
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                    <Checkbox
-                        checked={Boolean(data.featured)}
-                        onChange={(event) => setData('featured', event.target.checked)}
-                    />
+                <label className="flex items-center gap-2 text-sm">
+                    <Checkbox checked={Boolean(data.featured)} onChange={(event) => setData('featured', event.target.checked)} />
                     Marcar como proyecto destacado
                 </label>
 
                 <div>
                     <InputLabel htmlFor="intro" value="Introducción" />
-                    <Textarea
-                        id="intro"
-                        rows={2}
-                        className="mt-1.5"
-                        value={data.intro}
-                        onChange={(event) => setData('intro', event.target.value)}
-                    />
+                    <Textarea id="intro" rows={2} className="mt-1.5" value={data.intro} onChange={(event) => setData('intro', event.target.value)} required />
                     <InputError className="mt-1.5" message={errors.intro} />
                 </div>
 
                 <div>
                     <InputLabel htmlFor="body" value="Contenido" />
-                    <Textarea
-                        id="body"
-                        rows={5}
-                        className="mt-1.5"
-                        value={data.body}
-                        onChange={(event) => setData('body', event.target.value)}
-                    />
+                    <Textarea id="body" rows={5} className="mt-1.5" value={data.body} onChange={(event) => setData('body', event.target.value)} required />
                     <InputError className="mt-1.5" message={errors.body} />
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
                         <InputLabel value="Portada" />
-                        {coverPreview && (
-                            <img src={coverPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />
-                        )}
+                        {coverPreview && <img src={coverPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
                         <label
                             htmlFor="cover"
-                            className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-500 hover:border-brand-300 hover:text-brand-500 dark:border-gray-700 dark:text-gray-400"
+                            className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary"
                         >
-                            <UploadIcon className="h-4 w-4" />
+                            <Upload className="size-4" />
                             {data.cover ? data.cover.name : editingProject ? 'Reemplazar imagen' : 'Seleccionar imagen'}
                         </label>
-                        <input id="cover" type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
+                        <input
+                            id="cover"
+                            type="file"
+                            accept="image/*"
+                            required={!editingProject}
+                            className="hidden"
+                            onChange={handleCoverChange}
+                        />
                         <InputError className="mt-1.5" message={errors.cover} />
                     </div>
                     <div>
@@ -444,6 +418,7 @@ export default function ProjectsIndex({ projects, categories }) {
                             className="mt-1.5 block w-full"
                             value={data.cover_alt}
                             onChange={(event) => setData('cover_alt', event.target.value)}
+                            required
                         />
                         <InputError className="mt-1.5" message={errors.cover_alt} />
                     </div>

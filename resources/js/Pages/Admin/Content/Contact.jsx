@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import Textarea from '@/Components/Textarea';
@@ -29,42 +31,38 @@ export default function ContactContentEdit({ content, errors: serverErrors }) {
     const errors = serverErrors ?? {};
 
     return (
-        <AdminLayout title="Contacto" header="Contenido: Contacto">
+        <AdminLayout title="Contacto" header="Contenido: Contacto" description="Datos que se muestran en la página de contacto del sitio público.">
             <form onSubmit={submit} className="space-y-6">
-                <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-                    <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Datos de contacto</h3>
+                <Card className="p-6 shadow-soft">
+                    <h3 className="mb-4 font-display text-base font-semibold">Datos de contacto</h3>
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <div className="sm:col-span-2">
                             <InputLabel value="Dirección" />
-                            <Textarea rows={2} className="mt-1.5" value={fields.address} onChange={set('address')} />
+                            <Textarea rows={2} className="mt-1.5" value={fields.address} onChange={set('address')} required />
                             <InputError className="mt-1.5" message={errors.address} />
                         </div>
                         <div>
                             <InputLabel value="Correo electrónico" />
-                            <TextInput type="email" className="mt-1.5 w-full" value={fields.email} onChange={set('email')} />
+                            <TextInput type="email" className="mt-1.5 w-full" value={fields.email} onChange={set('email')} required />
                             <InputError className="mt-1.5" message={errors.email} />
                         </div>
                         <div>
                             <InputLabel value="Teléfono" />
-                            <TextInput className="mt-1.5 w-full" value={fields.phone} onChange={set('phone')} />
+                            <TextInput className="mt-1.5 w-full" value={fields.phone} onChange={set('phone')} required />
                             <InputError className="mt-1.5" message={errors.phone} />
                         </div>
                         <div className="sm:col-span-2">
                             <InputLabel value="Horario de atención" />
-                            <Textarea rows={2} className="mt-1.5" value={fields.hours} onChange={set('hours')} />
+                            <Textarea rows={2} className="mt-1.5" value={fields.hours} onChange={set('hours')} required />
                             <InputError className="mt-1.5" message={errors.hours} />
                         </div>
                     </div>
-                </section>
+                </Card>
 
                 <div className="flex justify-end">
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-60"
-                    >
+                    <Button type="submit" disabled={processing}>
                         {processing ? 'Guardando...' : 'Guardar cambios'}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </AdminLayout>

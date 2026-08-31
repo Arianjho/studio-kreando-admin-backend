@@ -1,12 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
+import { Pencil, Plus, Trash2, Upload } from 'lucide-react';
+
 import AdminLayout from '@/Layouts/AdminLayout';
 import FormModal from '@/Components/ui/FormModal';
 import ConfirmModal from '@/Components/ui/ConfirmModal';
+import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
+import { cn } from '@/lib/utils';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import { PencilIcon, PlusIcon, TrashIcon, UploadIcon } from '@/Icons';
 
 export default function MediaIndex({ media }) {
     const [mode, setMode] = useState(null); // 'create' | 'edit' | null
@@ -15,7 +19,7 @@ export default function MediaIndex({ media }) {
     const [deleting, setDeleting] = useState(false);
     const [previewUrl, setPreviewUrl] = useState(null);
 
-    const { data, setData, post, processing, errors, reset, clearErrors, transform } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         file: null,
         alt: '',
     });
@@ -54,11 +58,7 @@ export default function MediaIndex({ media }) {
         event.preventDefault();
 
         if (mode === 'edit' && editingMedia) {
-            router.post(
-                route('admin.media.update', editingMedia.id),
-                { _method: 'put', alt: data.alt },
-                { onSuccess: closeForm },
-            );
+            router.post(route('admin.media.update', editingMedia.id), { _method: 'put', alt: data.alt }, { onSuccess: closeForm });
             return;
         }
 
@@ -81,58 +81,53 @@ export default function MediaIndex({ media }) {
     const items = media.data ?? [];
 
     return (
-        <AdminLayout title="Multimedia" header="Multimedia">
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                    <h2 className="text-base font-medium text-gray-800 dark:text-white/90">
+        <AdminLayout
+            title="Multimedia"
+            header="Multimedia"
+            description="Biblioteca de imágenes usada en proyectos y páginas de contenido."
+            actions={
+                <Button onClick={openCreate}>
+                    <Plus className="size-4" /> Subir archivo
+                </Button>
+            }
+        >
+            <Card className="overflow-hidden shadow-soft">
+                <div className="flex items-center justify-between border-b border-border px-6 py-4">
+                    <h2 className="text-sm font-medium text-muted-foreground">
                         {media.total} archivo{media.total === 1 ? '' : 's'}
                     </h2>
-                    <button
-                        type="button"
-                        onClick={openCreate}
-                        className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
-                    >
-                        <PlusIcon className="h-4 w-4" />
-                        Subir archivo
-                    </button>
                 </div>
 
                 <div className="p-6">
                     {items.length === 0 ? (
-                        <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                            No hay archivos multimedia todavía.
-                        </p>
+                        <p className="py-8 text-center text-sm text-muted-foreground">No hay archivos multimedia todavía.</p>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                             {items.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="group relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800"
-                                >
-                                    <img
-                                        src={item.url}
-                                        alt={item.alt}
-                                        className="aspect-square w-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-gray-900/60 opacity-0 transition group-hover:opacity-100">
-                                        <button
+                                <div key={item.id} className="group relative overflow-hidden rounded-xl border border-border">
+                                    <img src={item.url} alt={item.alt} className="aspect-square w-full object-cover" />
+                                    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 transition group-hover:opacity-100">
+                                        <Button
                                             type="button"
-                                            onClick={() => openEdit(item)}
+                                            variant="secondary"
+                                            size="icon"
                                             aria-label="Editar"
-                                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 text-gray-700 hover:bg-white"
+                                            onClick={() => openEdit(item)}
                                         >
-                                            <PencilIcon className="h-4 w-4" />
-                                        </button>
-                                        <button
+                                            <Pencil className="size-4" />
+                                        </Button>
+                                        <Button
                                             type="button"
-                                            onClick={() => setDeletingMedia(item)}
+                                            variant="secondary"
+                                            size="icon"
                                             aria-label="Eliminar"
-                                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 text-error-500 hover:bg-white"
+                                            className="text-destructive"
+                                            onClick={() => setDeletingMedia(item)}
                                         >
-                                            <TrashIcon className="h-4 w-4" />
-                                        </button>
+                                            <Trash2 className="size-4" />
+                                        </Button>
                                     </div>
-                                    <p className="truncate border-t border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
+                                    <p className="truncate border-t border-border bg-card px-2 py-1.5 text-xs text-muted-foreground">
                                         {item.alt}
                                     </p>
                                 </div>
@@ -142,55 +137,37 @@ export default function MediaIndex({ media }) {
                 </div>
 
                 {media.links && media.links.length > 3 && (
-                    <div className="flex flex-wrap items-center justify-center gap-1 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+                    <div className="flex flex-wrap items-center justify-center gap-1 border-t border-border px-6 py-4">
                         {media.links.map((link, index) => (
                             <Link
                                 key={index}
                                 href={link.url ?? '#'}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
-                                className={`rounded-lg px-3 py-1.5 text-sm ${
-                                    link.active
-                                        ? 'bg-brand-500 text-white'
-                                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
-                                } ${!link.url ? 'pointer-events-none opacity-40' : ''}`}
+                                className={cn(
+                                    'rounded-lg px-3 py-1.5 text-sm',
+                                    link.active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent',
+                                    !link.url && 'pointer-events-none opacity-40',
+                                )}
                             />
                         ))}
                     </div>
                 )}
-            </div>
+            </Card>
 
-            <FormModal
-                isOpen={mode !== null}
-                onClose={closeForm}
-                onSubmit={submit}
-                title={mode === 'edit' ? 'Editar archivo' : 'Subir archivo'}
-                processing={processing}
-            >
-                {previewUrl && (
-                    <img
-                        src={previewUrl}
-                        alt="Vista previa"
-                        className="mx-auto h-40 w-40 rounded-lg object-cover"
-                    />
-                )}
+            <FormModal isOpen={mode !== null} onClose={closeForm} onSubmit={submit} title={mode === 'edit' ? 'Editar archivo' : 'Subir archivo'} processing={processing}>
+                {previewUrl && <img src={previewUrl} alt="Vista previa" className="mx-auto h-40 w-40 rounded-lg object-cover" />}
 
                 {mode === 'create' && (
                     <div>
                         <InputLabel htmlFor="file" value="Imagen" />
                         <label
                             htmlFor="file"
-                            className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-6 text-sm text-gray-500 hover:border-brand-300 hover:text-brand-500 dark:border-gray-700 dark:text-gray-400"
+                            className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground hover:border-primary hover:text-primary"
                         >
-                            <UploadIcon className="h-5 w-5" />
+                            <Upload className="size-5" />
                             {data.file ? data.file.name : 'Seleccionar imagen (máx. 5 MB)'}
                         </label>
-                        <input
-                            id="file"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleFileChange}
-                        />
+                        <input id="file" type="file" accept="image/*" required className="hidden" onChange={handleFileChange} />
                         <InputError className="mt-1.5" message={errors.file} />
                     </div>
                 )}
@@ -202,6 +179,7 @@ export default function MediaIndex({ media }) {
                         className="mt-1.5 block w-full"
                         value={data.alt}
                         onChange={(event) => setData('alt', event.target.value)}
+                        required
                     />
                     <InputError className="mt-1.5" message={errors.alt} />
                 </div>

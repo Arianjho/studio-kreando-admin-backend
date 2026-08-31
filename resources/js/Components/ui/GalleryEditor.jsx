@@ -1,6 +1,7 @@
 import { useRef } from 'react';
+import { Plus, Trash2 } from 'lucide-react';
 import TextInput from '@/Components/TextInput';
-import { PlusIcon, TrashIcon, UploadIcon } from '@/Icons';
+import { Button } from '@/Components/ui/button';
 
 let keySeq = 0;
 function nextKey() {
@@ -34,26 +35,25 @@ export default function GalleryEditor({ items, onChange }) {
         <div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {items.map((item) => (
-                    <div
-                        key={item.key}
-                        className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800"
-                    >
+                    <div key={item.key} className="overflow-hidden rounded-lg border border-border">
                         <img src={item.url} alt="" className="aspect-square w-full object-cover" />
                         <div className="space-y-1.5 p-2">
                             <TextInput
                                 value={item.alt}
                                 onChange={(event) => updateAlt(item.key, event.target.value)}
                                 placeholder="Texto alternativo"
-                                className="!h-9 text-xs"
+                                className="!h-8 text-xs"
                             />
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => removeItem(item.key)}
-                                className="flex w-full items-center justify-center gap-1 rounded-md bg-error-50 py-1 text-xs font-medium text-error-600 hover:bg-error-100 dark:bg-error-500/10 dark:text-error-400"
                             >
-                                <TrashIcon className="h-3.5 w-3.5" />
+                                <Trash2 className="size-3.5" />
                                 Quitar
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 ))}
@@ -61,9 +61,9 @@ export default function GalleryEditor({ items, onChange }) {
                 <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 text-gray-400 hover:border-brand-300 hover:text-brand-500 dark:border-gray-700"
+                    className="flex aspect-square flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary"
                 >
-                    <PlusIcon className="h-5 w-5" />
+                    <Plus className="size-5" />
                     <span className="text-xs">Agregar</span>
                 </button>
             </div>

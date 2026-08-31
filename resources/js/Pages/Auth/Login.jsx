@@ -25,10 +25,10 @@ export default function Login({ status, canResetPassword }) {
         <GuestLayout>
             <Head title="Iniciar sesión" />
 
-            <h1 className="mb-6 text-xl font-semibold text-gray-800 dark:text-white/90">Iniciar sesión</h1>
+            <h1 className="mb-6 font-display text-xl font-semibold">Iniciar sesión</h1>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-4 text-sm font-medium text-success">
                     {status}
                 </div>
             )}
@@ -76,7 +76,7 @@ export default function Login({ status, canResetPassword }) {
                                 setData('remember', e.target.checked)
                             }
                         />
-                        <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                        <span className="ms-2 text-sm text-muted-foreground">
                             Recordarme
                         </span>
                     </label>
@@ -84,7 +84,7 @@ export default function Login({ status, canResetPassword }) {
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="text-sm text-brand-500 hover:text-brand-600"
+                            className="text-sm text-primary hover:text-primary/80"
                         >
                             ¿Olvidaste tu contraseña?
                         </Link>

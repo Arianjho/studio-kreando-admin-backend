@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\AboutContentResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\AboutContent;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group('Contenido', 'Paginas de contenido singleton (una sola fila por pagina).')]
 class AboutController extends Controller
 {
     public function show(): JsonResponse

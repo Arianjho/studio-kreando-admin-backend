@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
+
 import AdminLayout from '@/Layouts/AdminLayout';
 import FormModal from '@/Components/ui/FormModal';
 import ConfirmModal from '@/Components/ui/ConfirmModal';
+import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import { PencilIcon, PlusIcon, TrashIcon } from '@/Icons';
 
 export default function CategoriesIndex({ categories }) {
     const [editingCategory, setEditingCategory] = useState(null);
@@ -43,13 +47,9 @@ export default function CategoriesIndex({ categories }) {
         event.preventDefault();
 
         if (editingCategory) {
-            put(route('admin.categories.update', editingCategory.id), {
-                onSuccess: closeForm,
-            });
+            put(route('admin.categories.update', editingCategory.id), { onSuccess: closeForm });
         } else {
-            post(route('admin.categories.store'), {
-                onSuccess: closeForm,
-            });
+            post(route('admin.categories.store'), { onSuccess: closeForm });
         }
     };
 
@@ -64,79 +64,64 @@ export default function CategoriesIndex({ categories }) {
     };
 
     return (
-        <AdminLayout title="Categorías" header="Categorías">
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                    <h2 className="text-base font-medium text-gray-800 dark:text-white/90">
+        <AdminLayout
+            title="Categorías"
+            header="Categorías"
+            description="Organiza el portafolio de proyectos por categoría."
+            actions={
+                <Button onClick={openCreate}>
+                    <Plus className="size-4" /> Nueva categoría
+                </Button>
+            }
+        >
+            <Card className="overflow-hidden shadow-soft">
+                <div className="flex items-center justify-between border-b border-border px-6 py-4">
+                    <h2 className="text-sm font-medium text-muted-foreground">
                         {categories.length} categoría{categories.length === 1 ? '' : 's'}
                     </h2>
-                    <button
-                        type="button"
-                        onClick={openCreate}
-                        className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
-                    >
-                        <PlusIcon className="h-4 w-4" />
-                        Nueva categoría
-                    </button>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-gray-200 dark:border-gray-800">
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Nombre
-                                </th>
-                                <th className="px-6 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Proyectos
-                                </th>
-                                <th className="px-6 py-3 text-right text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
-                                    Acciones
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {categories.length === 0 && (
-                                <tr>
-                                    <td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                        No hay categorías registradas todavía.
-                                    </td>
-                                </tr>
-                            )}
-                            {categories.map((category) => (
-                                <tr key={category.id} className="border-b border-gray-100 last:border-0 dark:border-gray-800">
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-800 dark:text-white/90">
-                                        {category.name}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                        {category.projects_count}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => openEdit(category)}
-                                                aria-label="Editar"
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
-                                            >
-                                                <PencilIcon className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setDeletingCategory(category)}
-                                                aria-label="Eliminar"
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-error-500 transition hover:bg-error-50 dark:hover:bg-error-500/10"
-                                            >
-                                                <TrashIcon className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="px-6">Nombre</TableHead>
+                            <TableHead className="px-6">Proyectos</TableHead>
+                            <TableHead className="px-6 text-right">Acciones</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {categories.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={3} className="px-6 py-10 text-center text-sm text-muted-foreground">
+                                    No hay categorías registradas todavía.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {categories.map((category) => (
+                            <TableRow key={category.id}>
+                                <TableCell className="px-6 py-3 font-medium">{category.name}</TableCell>
+                                <TableCell className="px-6 py-3 text-muted-foreground">{category.projects_count}</TableCell>
+                                <TableCell className="px-6 py-3">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button variant="ghost" size="icon" aria-label="Editar" onClick={() => openEdit(category)}>
+                                            <Pencil className="size-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Eliminar"
+                                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={() => setDeletingCategory(category)}
+                                        >
+                                            <Trash2 className="size-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Card>
 
             <FormModal
                 isOpen={isFormOpen}
@@ -152,6 +137,7 @@ export default function CategoriesIndex({ categories }) {
                         className="mt-1.5 block w-full"
                         value={data.name}
                         onChange={(event) => setData('name', event.target.value)}
+                        required
                         autoFocus
                     />
                     <InputError className="mt-1.5" message={errors.name} />

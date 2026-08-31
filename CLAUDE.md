@@ -38,10 +38,19 @@ Modelos con `SoftDeletes`: `Category`, `Project`, `Message`, `Media`, `User`. Lo
 - `App\Services\MediaUploadService::store(UploadedFile $file, string $alt, string $disk = 'public'): Media` — helper compartido para toda subida de archivo.
 - `App\Services\RevalidateService::trigger(string $tag)` — dispara un webhook firmado hacia `studio-kreando-website` (`/api/revalidate`) para invalidar caché ISR/SSG. Los fallos de red se capturan y solo generan un `WARNING` en `storage/logs/laravel.log`; nunca son fatales. Cada controlador de escritura (`store`/`update`/`destroy`) debe llamarlo con el tag correspondiente al final, antes del `return`.
 
+## Documentación de la API (OpenAPI / Swagger)
+
+- Generada con **Scramble** (`dedoc/scramble`), sin anotaciones obligatorias: infiere rutas, params, request (`FormRequest`) y response (API Resources + envelope `ApiResponse`) por análisis estático. UI en `/docs/api` (Stoplight Elements), spec JSON en `/docs/api.json`, export a archivo con `php artisan scramble:export`.
+- Config en `config/scramble.php` (`api_path => 'api'` cubre `/api/v1/*`). Versión vía `API_VERSION` en `.env`.
+- Acceso: abierta en entorno `local`; en cualquier otro entorno exige el gate `viewApiDocs` (definido en `AppServiceProvider`, cualquier usuario del panel autenticado).
+- Retoques puntuales vía atributos de Scramble en `app/Http/Controllers/Api/*` (`#[Group]`, `#[QueryParameter]`, `#[PathParameter]`, `#[Response]`). Solo añadir cuando la inferencia se queda corta.
+- Scramble cachea la spec **solo** si se corre `php artisan scramble:cache` (limpiar con `scramble:clear`); en dev/tests se regenera en cada request.
+
 ## Tests
 
 - PHPUnit puro (no Pest, pese a que `pestphp/pest-plugin` aparece en `composer.json`), siguiendo la convención de `tests/Feature/ProfileTest.php`: `extends Tests\TestCase`, `use RefreshDatabase`, `actingAs()`, aserciones sobre sesión/BD.
 - Tests de control de acceso por recurso admin en `tests/Feature/Admin/*ControllerTest.php` (Categories, Projects, Messages, Media, Users, Content singletons): verifican redirect a login para invitados, acceso autenticado, validación básica y comportamiento de soft delete donde aplica.
+- `tests/Feature/Api/OpenApiDocsTest.php`: verifica el gate de `/docs/api`, que el documento OpenAPI liste los 8 endpoints públicos y que queden documentados los query params (`featured`, `category`) y respuestas de error (404, 422, 429).
 - Ejecutar con `php artisan test` (usa SQLite en memoria vía `phpunit.xml`, no toca la BD de desarrollo).
 
 ## Notas de entorno de este agente
