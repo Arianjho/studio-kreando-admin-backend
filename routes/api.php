@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ConsultaController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\HomeController;
-use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\SiteSettingController;
 use Illuminate\Support\Facades\Route;
@@ -28,5 +28,5 @@ Route::prefix('v1')->group(function () {
     Route::get('contact', [ContactController::class, 'show']);
     Route::get('site-settings', [SiteSettingController::class, 'show']);
 
-    Route::post('messages', [MessageController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('consultas', [ConsultaController::class, 'store'])->middleware('throttle:10,1');
 });

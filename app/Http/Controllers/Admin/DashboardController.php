@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Consulta;
 use App\Models\Media;
-use App\Models\Message;
 use App\Models\Project;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -17,34 +17,34 @@ class DashboardController extends Controller
     {
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                'unreadMessages' => Message::where('read', false)->count(),
-                'totalMessages' => Message::count(),
+                'unreadConsultas' => Consulta::where('read', false)->count(),
+                'totalConsultas' => Consulta::count(),
                 'projects' => Project::count(),
                 'featuredProjects' => Project::where('featured', true)->count(),
                 'categories' => Category::count(),
                 'media' => Media::count(),
             ],
-            'messagesByMonth' => $this->messagesByMonth(),
-            'recentMessages' => Message::latest()
+            'consultasByMonth' => $this->consultasByMonth(),
+            'recentConsultas' => Consulta::latest()
                 ->take(5)
-                ->get(['id', 'name', 'subject', 'read', 'created_at']),
+                ->get(['id', 'name', 'project_type', 'read', 'responded_at', 'created_at']),
         ]);
     }
 
     /**
-     * Conteo de mensajes de los últimos 6 meses, agrupado por mes.
+     * Conteo de consultas de los últimos 6 meses, agrupado por mes.
      * Los buckets se arman en PHP para no depender de funciones de fecha
      * específicas del motor (Postgres en dev, SQLite en tests).
      *
      * @return list<array{label: string, value: int}>
      */
-    private function messagesByMonth(): array
+    private function consultasByMonth(): array
     {
         $start = Carbon::now()->startOfMonth()->subMonths(5);
 
-        $counts = Message::where('created_at', '>=', $start)
+        $counts = Consulta::where('created_at', '>=', $start)
             ->get(['created_at'])
-            ->groupBy(fn (Message $message) => $message->created_at->format('Y-m'))
+            ->groupBy(fn (Consulta $consulta) => $consulta->created_at->format('Y-m'))
             ->map->count();
 
         $months = [];

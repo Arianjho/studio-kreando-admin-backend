@@ -398,6 +398,7 @@ class ContentSeeder extends Seeder
             'site_name' => 'KreanDDo Arquitectos',
             'site_url' => 'https://www.kreanddo.com',
             'default_seo_description' => 'Estudio de arquitectura en Lima: vivienda, comercio, interiorismo y espacio público.',
+            'whatsapp_message_template' => 'Hola {nombre}, te escribo de KreanDDo Arquitectos por tu consulta sobre {tipo_proyecto}. ¿Tienes unos minutos para conversar?',
         ]);
     }
 }

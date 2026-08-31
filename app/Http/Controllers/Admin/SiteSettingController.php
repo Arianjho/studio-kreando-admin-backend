@@ -25,6 +25,7 @@ class SiteSettingController extends Controller
             'site_name' => ['required', 'string', 'max:255'],
             'site_url' => ['required', 'string', 'max:255', 'url'],
             'default_seo_description' => ['required', 'string'],
+            'whatsapp_message_template' => ['required', 'string', 'max:4000'],
         ]);
 
         SiteSetting::firstOrFail()->update($data);

@@ -22,12 +22,12 @@ Recursos CRUD y sus controladores (`app/Http/Controllers/Admin/`):
 
 - `CategoryController` — categorías de proyectos.
 - `ProjectController` — proyectos del portafolio (portada + galería vía `Media`).
-- `MessageController` — mensajes del formulario de contacto público (solo lectura/marcar leído/eliminar).
+- `ConsultaController` — consultas del formulario de contacto público (listar con filtros búsqueda/tipo/estado, marcar leída, eliminar, y responder por WhatsApp vía `sendWhatsApp`). Endpoint público de escritura: `POST /api/v1/consultas` (`Api\ConsultaController`).
 - `MediaController` — biblioteca de medios.
 - `UserController` — usuarios del panel (sin auto-registro; solo un admin ya autenticado puede crear usuarios; un usuario no puede eliminarse a sí mismo).
 - `HomeContentController`, `AboutContentController`, `ContactContentController`, `SiteSettingController` — páginas de contenido singleton (una sola fila cada una, sin soft delete).
 
-Modelos con `SoftDeletes`: `Category`, `Project`, `Message`, `Media`, `User`. Los singletons de contenido NO usan soft delete.
+Modelos con `SoftDeletes`: `Category`, `Project`, `Consulta`, `Media`, `User`. Los singletons de contenido NO usan soft delete. `ConsultaWhatsappMessage` registra cada envío de WhatsApp (log + `consultas.responded_at`).
 
 ## Convenciones de UI
 
@@ -38,6 +38,7 @@ Modelos con `SoftDeletes`: `Category`, `Project`, `Message`, `Media`, `User`. Lo
 ## Servicios clave
 
 - `App\Services\MediaUploadService::store(UploadedFile $file, string $alt, string $disk = 'public'): Media` — helper compartido para toda subida de archivo.
+- `App\Services\WhatsAppService::sendText(string $phone, string $message)` — envía texto por WhatsApp vía Evolution API (`POST {WHATSAPP_URL}/message/sendText/{WHATSAPP_INSTANCE}`, cabecera `apikey`). Normaliza teléfonos de 9 dígitos a `51XXXXXXXXX`. `isConfigured()` valida que las env vars estén presentes. Config en `config/services.php` (`whatsapp`).
 - `App\Services\RevalidateService::trigger(string $tag)` — dispara un webhook firmado hacia `studio-kreando-website` (`/api/revalidate`) para invalidar caché ISR/SSG. Los fallos de red se capturan y solo generan un `WARNING` en `storage/logs/laravel.log`; nunca son fatales. Cada controlador de escritura (`store`/`update`/`destroy`) debe llamarlo con el tag correspondiente al final, antes del `return`.
 
 ## Documentación de la API (OpenAPI / Swagger)
@@ -51,7 +52,7 @@ Modelos con `SoftDeletes`: `Category`, `Project`, `Message`, `Media`, `User`. Lo
 ## Tests
 
 - PHPUnit puro (no Pest, pese a que `pestphp/pest-plugin` aparece en `composer.json`), siguiendo la convención de `tests/Feature/ProfileTest.php`: `extends Tests\TestCase`, `use RefreshDatabase`, `actingAs()`, aserciones sobre sesión/BD.
-- Tests de control de acceso por recurso admin en `tests/Feature/Admin/*ControllerTest.php` (Categories, Projects, Messages, Media, Users, Content singletons): verifican redirect a login para invitados, acceso autenticado, validación básica y comportamiento de soft delete donde aplica.
+- Tests de control de acceso por recurso admin en `tests/Feature/Admin/*ControllerTest.php` (Categories, Projects, Consultas, Media, Users, Content singletons): verifican redirect a login para invitados, acceso autenticado, validación básica y comportamiento de soft delete donde aplica. Los envíos de WhatsApp se prueban con `Http::fake()`.
 - `tests/Feature/Api/OpenApiDocsTest.php`: verifica el gate de `/docs/api`, que el documento OpenAPI liste los 8 endpoints públicos y que queden documentados los query params (`featured`, `category`) y respuestas de error (404, 422, 429).
 - Ejecutar con `php artisan test` (usa SQLite en memoria vía `phpunit.xml`, no toca la BD de desarrollo).
 

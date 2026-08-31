@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\Admin\AboutContentController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ConsultaController;
 use App\Http\Controllers\Admin\ContactContentController;
 use App\Http\Controllers\Admin\ContactFormOptionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HomeContentController;
 use App\Http\Controllers\Admin\MediaController;
-use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\UserController;
@@ -29,9 +29,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
     Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
-    Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
-    Route::patch('messages/{message}/read', [MessageController::class, 'markRead'])->name('messages.read');
-    Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    Route::get('consultas', [ConsultaController::class, 'index'])->name('consultas.index');
+    Route::patch('consultas/{consulta}/read', [ConsultaController::class, 'markRead'])->name('consultas.read');
+    Route::post('consultas/{consulta}/whatsapp', [ConsultaController::class, 'sendWhatsApp'])->name('consultas.whatsapp');
+    Route::delete('consultas/{consulta}', [ConsultaController::class, 'destroy'])->name('consultas.destroy');
 
     Route::get('media', [MediaController::class, 'index'])->name('media.index');
     Route::post('media', [MediaController::class, 'store'])->name('media.store');

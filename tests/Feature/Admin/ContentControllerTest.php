@@ -135,6 +135,7 @@ class ContentControllerTest extends TestCase
             'site_name' => 'Nuevo nombre del sitio',
             'site_url' => $content->site_url,
             'default_seo_description' => $content->default_seo_description,
+            'whatsapp_message_template' => $content->whatsapp_message_template,
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -199,6 +200,7 @@ class ContentControllerTest extends TestCase
             'site_name' => 'Studio Kreando',
             'site_url' => 'https://www.example.com',
             'default_seo_description' => 'Descripción SEO',
+            'whatsapp_message_template' => 'Hola {nombre}, te escribo por tu consulta.',
         ];
     }
 }

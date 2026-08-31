@@ -3,23 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\StoreMessageRequest;
+use App\Http\Requests\Api\StoreConsultaRequest;
 use App\Http\Responses\ApiResponse;
-use App\Models\Message;
+use App\Models\Consulta;
 use Dedoc\Scramble\Attributes\Group;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 
 #[Group('Contacto', 'Formulario de contacto publico. Unica escritura sin autenticacion.')]
-class MessageController extends Controller
+class ConsultaController extends Controller
 {
     #[Response(429, 'Se supero el limite de 10 envios por minuto desde la misma IP.')]
-    public function store(StoreMessageRequest $request): JsonResponse
+    public function store(StoreConsultaRequest $request): JsonResponse
     {
-        $message = Message::create($request->validated());
+        $consulta = Consulta::create($request->validated());
 
         return ApiResponse::created([
-            'id' => $message->id,
-        ], 'Mensaje enviado correctamente, nos pondremos en contacto pronto');
+            'id' => $consulta->id,
+        ], 'Consulta enviada correctamente, nos pondremos en contacto pronto');
     }
 }

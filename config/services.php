@@ -40,4 +40,12 @@ return [
         'secret' => env('REVALIDATE_SECRET'),
     ],
 
+    'whatsapp' => [
+        'url' => env('WHATSAPP_URL'),
+        'instance' => env('WHATSAPP_INSTANCE'),
+        'api_key' => env('WHATSAPP_API_KEY'),
+        // Solo poner en false en local si el PHP no trae bundle de CA.
+        'verify_ssl' => env('WHATSAPP_VERIFY_SSL', true),
+    ],
+
 ];

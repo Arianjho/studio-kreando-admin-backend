@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class SiteSetting extends Model
 {
-    protected $fillable = ['site_name', 'site_url', 'default_seo_description'];
+    protected $fillable = ['site_name', 'site_url', 'default_seo_description', 'whatsapp_message_template'];
 }

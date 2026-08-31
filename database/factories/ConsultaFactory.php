@@ -2,14 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\Message;
+use App\Models\Consulta;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Message>
+ * @extends Factory<Consulta>
  */
-class MessageFactory extends Factory
+class ConsultaFactory extends Factory
 {
+    protected $model = Consulta::class;
+
     /**
      * Define the model's default state.
      *
@@ -21,7 +23,7 @@ class MessageFactory extends Factory
 
         return [
             'name' => $this->faker->name(),
-            'email' => $this->faker->safeEmail(),
+            'phone' => (string) $this->faker->numberBetween(900_000_000, 999_999_999),
             'project_type' => $this->faker->randomElement($options['project_type']),
             'intervention' => $this->faker->randomElement($options['intervention']),
             'location' => $this->faker->city(),
@@ -30,6 +32,12 @@ class MessageFactory extends Factory
             'timeline' => $this->faker->randomElement($options['timeline']),
             'message' => $this->faker->paragraph(),
             'read' => false,
+            'responded_at' => null,
         ];
+    }
+
+    public function responded(): static
+    {
+        return $this->state(fn () => ['read' => true, 'responded_at' => now()]);
     }
 }

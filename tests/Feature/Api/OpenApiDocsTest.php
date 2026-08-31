@@ -44,7 +44,7 @@ class OpenApiDocsTest extends TestCase
             '/v1/about' => ['get'],
             '/v1/contact' => ['get'],
             '/v1/site-settings' => ['get'],
-            '/v1/messages' => ['post'],
+            '/v1/consultas' => ['post'],
         ];
 
         foreach ($expected as $path => $methods) {
@@ -90,7 +90,7 @@ class OpenApiDocsTest extends TestCase
         $this->assertContains('404', $responses);
     }
 
-    public function test_message_endpoint_documents_validation_and_throttle_responses(): void
+    public function test_consulta_endpoint_documents_validation_and_throttle_responses(): void
     {
         $user = User::factory()->create();
 
@@ -101,7 +101,7 @@ class OpenApiDocsTest extends TestCase
 
         $responses = array_map(
             'strval',
-            array_keys($document['paths']['/v1/messages']['post']['responses'] ?? [])
+            array_keys($document['paths']['/v1/consultas']['post']['responses'] ?? [])
         );
 
         $this->assertContains('201', $responses);

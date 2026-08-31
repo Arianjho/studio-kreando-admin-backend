@@ -12,8 +12,8 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function Dashboard({ stats, messagesByMonth, recentMessages }) {
-    const totalInRange = messagesByMonth.reduce((sum, m) => sum + m.value, 0);
+export default function Dashboard({ stats, consultasByMonth, recentConsultas }) {
+    const totalInRange = consultasByMonth.reduce((sum, m) => sum + m.value, 0);
 
     return (
         <AdminLayout title="Panel" header="Panel" description="Resumen general del contenido y la actividad del sitio.">
@@ -30,12 +30,12 @@ export default function Dashboard({ stats, messagesByMonth, recentMessages }) {
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <StatCard
-                        label="Mensajes sin leer"
-                        value={stats.unreadMessages}
-                        hint={`${stats.totalMessages} en total`}
+                        label="Consultas sin leer"
+                        value={stats.unreadConsultas}
+                        hint={`${stats.totalConsultas} en total`}
                         icon={Mail}
-                        href={route('admin.messages.index')}
-                        accent={stats.unreadMessages > 0 ? 'brand' : 'muted'}
+                        href={route('admin.consultas.index')}
+                        accent={stats.unreadConsultas > 0 ? 'brand' : 'muted'}
                     />
                     <StatCard
                         label="Proyectos"
@@ -62,39 +62,45 @@ export default function Dashboard({ stats, messagesByMonth, recentMessages }) {
                 <div className="grid items-start gap-5 lg:grid-cols-3">
                     <Card className="shadow-soft lg:col-span-2">
                         <CardHeader>
-                            <CardTitle>Mensajes por mes</CardTitle>
+                            <CardTitle>Consultas por mes</CardTitle>
                             <CardDescription>
-                                {totalInRange} mensaje{totalInRange === 1 ? '' : 's'} en los últimos 6 meses
+                                {totalInRange} consulta{totalInRange === 1 ? '' : 's'} en los últimos 6 meses
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <BarChart data={messagesByMonth} valueSuffix="mensajes" />
+                            <BarChart data={consultasByMonth} valueSuffix="consultas" />
                         </CardContent>
                     </Card>
 
                     <Card className="shadow-soft">
                         <CardHeader>
-                            <CardTitle>Mensajes recientes</CardTitle>
-                            <CardDescription>Últimos recibidos por el formulario de contacto</CardDescription>
+                            <CardTitle>Consultas recientes</CardTitle>
+                            <CardDescription>Últimas recibidas por el formulario de contacto</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            {recentMessages.length === 0 && (
-                                <p className="text-sm text-muted-foreground">Aún no hay mensajes.</p>
+                            {recentConsultas.length === 0 && (
+                                <p className="text-sm text-muted-foreground">Aún no hay consultas.</p>
                             )}
 
-                            {recentMessages.map((message) => (
+                            {recentConsultas.map((consulta) => (
                                 <Link
-                                    key={message.id}
-                                    href={route('admin.messages.index')}
+                                    key={consulta.id}
+                                    href={route('admin.consultas.index')}
                                     className="flex items-start justify-between gap-3 rounded-lg border border-border px-3 py-2 transition-colors hover:border-ring"
                                 >
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-medium">{message.subject}</p>
+                                        <p className="truncate text-sm font-medium">{consulta.name}</p>
                                         <p className="truncate text-xs text-muted-foreground">
-                                            {message.name} · {formatDate(message.created_at)}
+                                            {consulta.project_type} · {formatDate(consulta.created_at)}
                                         </p>
                                     </div>
-                                    {!message.read && <Badge className="shrink-0">Nuevo</Badge>}
+                                    {consulta.responded_at ? (
+                                        <Badge variant="success" className="shrink-0">
+                                            Respondida
+                                        </Badge>
+                                    ) : (
+                                        !consulta.read && <Badge className="shrink-0">Nueva</Badge>
+                                    )}
                                 </Link>
                             ))}
                         </CardContent>

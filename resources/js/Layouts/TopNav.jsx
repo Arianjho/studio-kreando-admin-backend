@@ -23,7 +23,7 @@ const searchableRoutes = [
     { label: 'Panel', path: 'admin.dashboard' },
     { label: 'Categorías', path: 'admin.categories.index' },
     { label: 'Proyectos', path: 'admin.projects.index' },
-    { label: 'Mensajes', path: 'admin.messages.index' },
+    { label: 'Consultas', path: 'admin.consultas.index' },
     { label: 'Multimedia', path: 'admin.media.index' },
     { label: 'Contenido — Inicio', path: 'admin.content.home' },
     { label: 'Contenido — Nosotros', path: 'admin.content.about' },

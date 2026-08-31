@@ -13,6 +13,7 @@ export default function SiteSettingsEdit({ content, errors: serverErrors }) {
         site_name: content.site_name,
         site_url: content.site_url,
         default_seo_description: content.default_seo_description,
+        whatsapp_message_template: content.whatsapp_message_template ?? '',
     });
     const [processing, setProcessing] = useState(false);
 
@@ -50,6 +51,33 @@ export default function SiteSettingsEdit({ content, errors: serverErrors }) {
                             <Textarea rows={3} className="mt-1.5" value={fields.default_seo_description} onChange={set('default_seo_description')} required />
                             <InputError className="mt-1.5" message={errors.default_seo_description} />
                         </div>
+                    </div>
+                </Card>
+
+                <Card className="p-6 shadow-soft">
+                    <h3 className="mb-1 font-display text-base font-semibold">WhatsApp</h3>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                        Texto prellenado al responder una consulta por WhatsApp desde el panel. Se puede editar antes de
+                        enviar cada mensaje.
+                    </p>
+                    <div>
+                        <InputLabel value="Plantilla del mensaje" />
+                        <Textarea
+                            rows={4}
+                            className="mt-1.5"
+                            value={fields.whatsapp_message_template}
+                            onChange={set('whatsapp_message_template')}
+                            required
+                        />
+                        <p className="mt-1.5 text-xs text-muted-foreground">
+                            Variables:{' '}
+                            <code className="rounded bg-secondary px-1">{'{nombre}'}</code>{' '}
+                            <code className="rounded bg-secondary px-1">{'{tipo_proyecto}'}</code>{' '}
+                            <code className="rounded bg-secondary px-1">{'{ubicacion}'}</code>{' '}
+                            <code className="rounded bg-secondary px-1">{'{presupuesto}'}</code>{' '}
+                            <code className="rounded bg-secondary px-1">{'{plazo}'}</code>
+                        </p>
+                        <InputError className="mt-1.5" message={errors.whatsapp_message_template} />
                     </div>
                 </Card>
 

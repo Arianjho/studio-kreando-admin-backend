@@ -44,7 +44,7 @@ const navGroups = [
     },
     {
         label: 'Comunicación',
-        items: [{ title: 'Mensajes', path: 'admin.messages.index', icon: Mail }],
+        items: [{ title: 'Consultas', path: 'admin.consultas.index', icon: Mail }],
     },
     {
         label: 'Sistema',
