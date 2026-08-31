@@ -16,6 +16,7 @@ import {
 } from '@/Components/ui/dropdown-menu';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/Components/ui/command';
 import ConfirmModal from '@/Components/ui/ConfirmModal';
+import Logo from '@/Components/Logo';
 import { useTheme } from '@/Context/ThemeContext';
 
 const searchableRoutes = [
@@ -84,6 +85,15 @@ export default function TopNav() {
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2.5 sm:gap-4 sm:px-5">
                 <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                     <SidebarTrigger />
+
+                    <Link
+                        href={route('admin.dashboard')}
+                        className="md:hidden"
+                        aria-label="Studio Kreando — ir al panel"
+                    >
+                        <Logo variant="mark" tone="auto" height={20} />
+                    </Link>
+
                     <Separator orientation="vertical" className="hidden h-6 sm:block" />
 
                     <button

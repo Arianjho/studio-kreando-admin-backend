@@ -8,9 +8,10 @@ import {
     LayoutGrid,
     Mail,
     Settings,
-    Sparkles,
     Users,
 } from 'lucide-react';
+
+import Logo from '@/Components/Logo';
 
 import {
     Sidebar,
@@ -87,14 +88,15 @@ export default function AppSidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader className="px-3 py-4">
-                <Link href={route('admin.dashboard')} className="flex items-center gap-2.5">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand text-sidebar-primary-foreground">
-                        <Sparkles className="size-5" />
-                    </span>
-                    {!collapsed && (
-                        <span className="min-w-0 truncate font-display text-lg font-extrabold tracking-tight text-sidebar-foreground">
-                            Studio<span className="text-sidebar-primary">Kreando</span>
-                        </span>
+                <Link
+                    href={route('admin.dashboard')}
+                    className="flex items-center gap-2.5 overflow-hidden"
+                    aria-label="Studio Kreando — ir al panel"
+                >
+                    {collapsed ? (
+                        <Logo variant="mark" tone="light" height={22} />
+                    ) : (
+                        <Logo variant="wordmark" tone="light" height={26} />
                     )}
                 </Link>
             </SidebarHeader>

@@ -17,7 +17,7 @@ export default function AdminLayout({ title, header, description, actions, child
                 <SidebarInset className="min-w-0 bg-background">
                     <TopNav />
                     <main className="min-w-0 flex-1 px-3 py-5 sm:px-6 sm:py-7">
-                        <div className="mx-auto w-full max-w-7xl">
+                        <div className="w-full">
                             {(header || description || actions) && (
                                 <header className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
                                     <div className="min-w-0">

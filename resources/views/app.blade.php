@@ -6,6 +6,10 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <link rel="icon" href="/favicon.ico" sizes="any">
+        <link rel="icon" type="image/png" href="/logo-mark.png">
+        <link rel="apple-touch-icon" href="/logo-mark.png">
+
         <script>
             (function () {
                 var stored = localStorage.getItem('theme');

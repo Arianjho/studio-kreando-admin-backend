@@ -4,6 +4,8 @@ Panel de administración a medida para el estudio de arquitectura Studio Kreando
 
 **No instalar Laravel Boost ni ningún otro plugin/skill de agente en este repo.** Trabajar solo con herramientas directas (Read/Write/Edit/Bash/etc). Esta es una instrucción explícita y recurrente del usuario.
 
+**No usar las skills de `superpowers` (brainstorming, systematic-debugging, writing-plans, etc.) en este repo.** Trabajar directo: explorar, proponer en el chat de forma breve, y ejecutar. Instrucción explícita del usuario.
+
 ## Stack
 
 - Laravel 13 (PHP ^8.3), Breeze como scaffold de auth base (login/reset/verify, sin auto-registro público).

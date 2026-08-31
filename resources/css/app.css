@@ -15,11 +15,12 @@ layer(base);
  * nunca colores literales. Para re-marcar todo el panel basta con editar
  * los bloques :root (light) y .dark (dark).
  *
- * El primary/brand/sidebar-primary/ring se deriva del brand-500 de
- * Studio Kreando (alineado a --ring de studio-kreando-website) para que
- * el panel comparta identidad visual con el sitio público. El resto de
- * la escala (gray/success/error/warning) proviene del tema TailAdmin
- * que ya usaba este panel.
+ * El primary/brand/sidebar-primary se deriva de la tinta del logo de
+ * KreanDDO Arquitectos (#113959, navy), idéntico al --primary de
+ * studio-kreando-website, para que panel y sitio público compartan la
+ * misma identidad. El --ring se mantiene un tono más claro para mejor
+ * lectura del foco. El resto de la escala (gray/success/error/warning)
+ * proviene del tema TailAdmin que ya usaba este panel.
  */
 @theme inline {
     --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
@@ -85,18 +86,18 @@ layer(base);
     --popover: #ffffff;
     --popover-foreground: #101828;
 
-    /* Brand: alineado al brand-500 (oklch) de studio-kreando-website */
-    --primary: oklch(0.55 0.095 240);
+    /* Brand: tinta del logo KreanDDO (#113959), igual al --primary de studio-kreando-website */
+    --primary: oklch(0.28 0.06 255);
     --primary-foreground: #ffffff;
-    --brand: oklch(0.55 0.095 240);
+    --brand: oklch(0.28 0.06 255);
     --brand-foreground: #ffffff;
 
     --secondary: #f2f4f7;
     --secondary-foreground: #344054;
     --muted: #f2f4f7;
     --muted-foreground: #667085;
-    --accent: oklch(0.96 0.015 240);
-    --accent-foreground: oklch(0.4 0.08 242);
+    --accent: oklch(0.93 0.025 245);
+    --accent-foreground: oklch(0.32 0.06 255);
 
     --success: #12b76a;
     --success-foreground: #ffffff;
@@ -111,19 +112,19 @@ layer(base);
     --input: #e4e7ec;
     --ring: oklch(0.55 0.095 240);
 
-    /* Sidebar oscuro fijo en ambos modos (identidad visual del panel) */
-    --sidebar: #101828;
-    --sidebar-foreground: #f2f4f7;
-    --sidebar-primary: oklch(0.55 0.095 240);
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #1d2939;
+    /* Sidebar navy fijo en ambos modos (tomado de la tinta del logo) */
+    --sidebar: oklch(0.24 0.045 255);
+    --sidebar-foreground: #eef2f7;
+    --sidebar-primary: oklch(0.72 0.07 240);
+    --sidebar-primary-foreground: oklch(0.2 0.05 255);
+    --sidebar-accent: oklch(0.31 0.05 255);
     --sidebar-accent-foreground: #ffffff;
     --sidebar-border: rgba(255, 255, 255, 0.1);
-    --sidebar-ring: oklch(0.55 0.095 240);
+    --sidebar-ring: oklch(0.72 0.07 240);
 
     --shadow-soft: 0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
     --shadow-high: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
-    --gradient-brand: linear-gradient(135deg, oklch(0.64 0.088 240), oklch(0.48 0.09 240));
+    --gradient-brand: linear-gradient(135deg, oklch(0.42 0.08 250), oklch(0.26 0.06 255));
 }
 
 /* ----------------------------- DARK MODE -------------------------------- */
@@ -137,16 +138,16 @@ layer(base);
     --popover: #1d2939;
     --popover-foreground: #f2f4f7;
 
-    --primary: oklch(0.64 0.088 240);
-    --primary-foreground: #101828;
-    --brand: oklch(0.64 0.088 240);
-    --brand-foreground: #101828;
+    --primary: oklch(0.62 0.1 240);
+    --primary-foreground: oklch(0.16 0.03 260);
+    --brand: oklch(0.62 0.1 240);
+    --brand-foreground: oklch(0.16 0.03 260);
 
     --secondary: #344054;
     --secondary-foreground: #f2f4f7;
     --muted: #344054;
     --muted-foreground: #98a2b3;
-    --accent: oklch(0.32 0.065 248);
+    --accent: oklch(0.32 0.055 250);
     --accent-foreground: #f2f4f7;
 
     --success: #32d583;
@@ -160,20 +161,20 @@ layer(base);
 
     --border: rgba(255, 255, 255, 0.1);
     --input: rgba(255, 255, 255, 0.14);
-    --ring: oklch(0.64 0.088 240);
+    --ring: oklch(0.62 0.1 240);
 
-    --sidebar: #0c111d;
-    --sidebar-foreground: #f2f4f7;
-    --sidebar-primary: oklch(0.64 0.088 240);
-    --sidebar-primary-foreground: #101828;
-    --sidebar-accent: #1d2939;
+    --sidebar: oklch(0.19 0.035 258);
+    --sidebar-foreground: #eef2f7;
+    --sidebar-primary: oklch(0.72 0.07 240);
+    --sidebar-primary-foreground: oklch(0.18 0.04 258);
+    --sidebar-accent: oklch(0.27 0.045 255);
     --sidebar-accent-foreground: #ffffff;
     --sidebar-border: rgba(255, 255, 255, 0.1);
-    --sidebar-ring: oklch(0.64 0.088 240);
+    --sidebar-ring: oklch(0.72 0.07 240);
 
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
     --shadow-high: 0 24px 48px -20px rgba(0, 0, 0, 0.7);
-    --gradient-brand: linear-gradient(135deg, oklch(0.64 0.088 240), oklch(0.48 0.09 240));
+    --gradient-brand: linear-gradient(135deg, oklch(0.5 0.09 245), oklch(0.32 0.07 255));
 }
 
 @layer base {
