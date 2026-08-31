@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { CheckCircle2, Eye, MessageCircle, Search, Trash2, X } from 'lucide-react';
 
 import AdminLayout from '@/Layouts/AdminLayout';
@@ -12,7 +12,6 @@ import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
-import { cn } from '@/lib/utils';
 import { fillTemplate, formatPhone, statusOf } from '@/lib/consulta';
 
 const STATUS_OPTIONS = [
@@ -42,7 +41,7 @@ export default function ConsultasIndex({
     const [waMessage, setWaMessage] = useState('');
     const [waSending, setWaSending] = useState(false);
 
-    const items = consultas.data ?? [];
+    const items = consultas ?? [];
     const viewing = viewingId ? (items.find((c) => c.id === viewingId) ?? null) : null;
     const hasFilters = Boolean(filters.search || filters.project_type || filters.status);
 
@@ -121,14 +120,14 @@ export default function ConsultasIndex({
         });
     };
 
-    const canWhatsApp = (consulta) => whatsappEnabled && /^\d{9}$/.test(String(consulta?.phone ?? ''));
+    const hasValidPhone = (consulta) => /^\d{9}$/.test(String(consulta?.phone ?? ''));
 
     return (
         <AdminLayout title="Consultas" header="Consultas" description="Consultas recibidas desde el formulario de contacto público.">
             <Card className="overflow-hidden shadow-soft">
                 <div className="flex flex-col gap-4 border-b border-border px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
                     <h2 className="text-sm font-medium text-muted-foreground">
-                        {consultas.total} consulta{consultas.total === 1 ? '' : 's'}
+                        {items.length} consulta{items.length === 1 ? '' : 's'}
                     </h2>
 
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -228,12 +227,14 @@ export default function ConsultasIndex({
                                             >
                                                 <Eye className="size-4" />
                                             </Button>
-                                            {canWhatsApp(consulta) && (
+                                            {whatsappEnabled && (
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     aria-label="Enviar WhatsApp"
                                                     className="text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-600"
+                                                    disabled={!hasValidPhone(consulta)}
+                                                    title={hasValidPhone(consulta) ? 'Enviar WhatsApp' : 'Sin teléfono válido'}
                                                     onClick={() => openWhatsApp(consulta)}
                                                 >
                                                     <MessageCircle className="size-4" />
@@ -246,23 +247,6 @@ export default function ConsultasIndex({
                         })}
                     </TableBody>
                 </Table>
-
-                {consultas.links && consultas.links.length > 3 && (
-                    <div className="flex flex-wrap items-center justify-center gap-1 border-t border-border px-6 py-4">
-                        {consultas.links.map((link, index) => (
-                            <Link
-                                key={index}
-                                href={link.url ?? '#'}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className={cn(
-                                    'rounded-lg px-3 py-1.5 text-sm',
-                                    link.active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent',
-                                    !link.url && 'pointer-events-none opacity-40',
-                                )}
-                            />
-                        ))}
-                    </div>
-                )}
             </Card>
 
             <Dialog open={Boolean(viewing)} onOpenChange={(open) => !open && setViewingId(null)}>
@@ -325,9 +309,11 @@ export default function ConsultasIndex({
                                         <CheckCircle2 className="size-4" /> Marcar cerrado
                                     </Button>
                                 )}
-                                {canWhatsApp(viewing) && (
+                                {whatsappEnabled && (
                                     <Button
                                         type="button"
+                                        disabled={!hasValidPhone(viewing)}
+                                        title={hasValidPhone(viewing) ? undefined : 'Sin teléfono válido'}
                                         onClick={() => {
                                             setViewingId(null);
                                             openWhatsApp(viewing);

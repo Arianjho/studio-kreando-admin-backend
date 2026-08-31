@@ -35,8 +35,7 @@ class ConsultaController extends Controller
             ->when($projectType, fn (Builder $query, string $type) => $query->where('project_type', $type))
             ->when($status, fn (Builder $query, string $value) => $query->where('status', $value))
             ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            ->get();
 
         return Inertia::render('Admin/Consultas/Index', [
             'consultas' => $consultas,

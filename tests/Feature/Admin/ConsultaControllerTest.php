@@ -47,8 +47,8 @@ class ConsultaControllerTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.consultas.index', ['search' => '987654321']))
             ->assertInertia(fn ($page) => $page
-                ->where('consultas.total', 1)
-                ->where('consultas.data.0.name', 'Lucía Fernández'));
+                ->has('consultas', 1)
+                ->where('consultas.0.name', 'Lucía Fernández'));
     }
 
     public function test_status_filter_separates_nuevo_contactado_and_cerrado(): void
@@ -61,7 +61,7 @@ class ConsultaControllerTest extends TestCase
         foreach (['nuevo', 'contactado', 'cerrado'] as $status) {
             $this->actingAs($user)
                 ->get(route('admin.consultas.index', ['status' => $status]))
-                ->assertInertia(fn ($page) => $page->where('consultas.total', 1));
+                ->assertInertia(fn ($page) => $page->has('consultas', 1));
         }
     }
 
