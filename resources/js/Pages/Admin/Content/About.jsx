@@ -2,13 +2,22 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Upload } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
+import StickySaveBar from '@/Components/ui/StickySaveBar';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import Textarea from '@/Components/Textarea';
 import InputError from '@/Components/InputError';
 import RepeaterList from '@/Components/ui/RepeaterList';
+import { cn } from '@/lib/utils';
+
+const TABS = [
+    { value: 'portada', label: 'Portada', prefixes: ['hero_', 'detail_', 'cta_label'] },
+    { value: 'intro', label: 'Introducción', prefixes: ['intro_paragraphs'] },
+    { value: 'servicios', label: 'Servicios', prefixes: ['services'] },
+    { value: 'hitos', label: 'Hitos', prefixes: ['milestones'] },
+];
 
 export default function AboutContentEdit({ content, errors: serverErrors }) {
     const [fields, setFields] = useState({
@@ -26,8 +35,18 @@ export default function AboutContentEdit({ content, errors: serverErrors }) {
     const [services, setServices] = useState(content.services ?? []);
     const [milestones, setMilestones] = useState(content.milestones ?? []);
     const [processing, setProcessing] = useState(false);
+    const [dirty, setDirty] = useState(false);
+    const [tab, setTab] = useState('portada');
 
-    const set = (key) => (event) => setFields((prev) => ({ ...prev, [key]: event.target.value }));
+    const markDirty = () => setDirty(true);
+    const set = (key) => (event) => {
+        setFields((prev) => ({ ...prev, [key]: event.target.value }));
+        markDirty();
+    };
+    const bindList = (setter) => (value) => {
+        setter(value);
+        markDirty();
+    };
 
     const handleFile = (setFile, setPreview) => (event) => {
         const file = event.target.files?.[0] ?? null;
@@ -35,6 +54,7 @@ export default function AboutContentEdit({ content, errors: serverErrors }) {
         if (file) {
             setPreview(URL.createObjectURL(file));
         }
+        markDirty();
     };
 
     const submit = (event) => {
@@ -61,96 +81,143 @@ export default function AboutContentEdit({ content, errors: serverErrors }) {
         router.post(route('admin.content.about.update'), payload, {
             forceFormData: true,
             preserveScroll: true,
+            onSuccess: () => setDirty(false),
+            onError: (formErrors) => {
+                const firstBadTab = TABS.find((entry) =>
+                    Object.keys(formErrors).some((key) =>
+                        entry.prefixes.some((prefix) => key === prefix || key.startsWith(prefix)),
+                    ),
+                );
+                if (firstBadTab) setTab(firstBadTab.value);
+            },
             onFinish: () => setProcessing(false),
         });
     };
 
     const errors = serverErrors ?? {};
+    const tabHasError = (prefixes) =>
+        Object.keys(errors).some((key) => prefixes.some((prefix) => key === prefix || key.startsWith(prefix)));
 
     return (
         <AdminLayout title="Nosotros" header="Contenido: Nosotros" description="Secciones de la página “Nosotros” del sitio público.">
-            <form onSubmit={submit} className="space-y-6">
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Portada (hero)</h3>
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <InputLabel value="Titular" />
-                            <TextInput className="mt-1.5 w-full" value={fields.hero_headline} onChange={set('hero_headline')} required />
-                            <InputError className="mt-1.5" message={errors.hero_headline} />
-                        </div>
-                        <div>
-                            <InputLabel value="Etiqueta del botón de cierre" />
-                            <TextInput className="mt-1.5 w-full" value={fields.cta_label} onChange={set('cta_label')} required />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <InputLabel value="Subtexto" />
-                            <Textarea rows={2} className="mt-1.5" value={fields.hero_subtext} onChange={set('hero_subtext')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Imagen de portada" />
-                            {heroPreview && <img src={heroPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
-                            <label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary">
-                                <Upload className="size-4" />
-                                {heroFile ? heroFile.name : 'Reemplazar imagen'}
-                                <input type="file" accept="image/*" className="hidden" onChange={handleFile(setHeroFile, setHeroPreview)} />
-                            </label>
-                            <TextInput className="mt-2 w-full" placeholder="Texto alternativo" value={heroAlt} onChange={(e) => setHeroAlt(e.target.value)} />
-                        </div>
-                        <div>
-                            <InputLabel value="Imagen de detalle" />
-                            {detailPreview && <img src={detailPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
-                            <label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary">
-                                <Upload className="size-4" />
-                                {detailFile ? detailFile.name : 'Reemplazar imagen'}
-                                <input type="file" accept="image/*" className="hidden" onChange={handleFile(setDetailFile, setDetailPreview)} />
-                            </label>
-                            <TextInput className="mt-2 w-full" placeholder="Texto alternativo" value={detailAlt} onChange={(e) => setDetailAlt(e.target.value)} />
-                        </div>
-                    </div>
-                </Card>
+            <form onSubmit={submit} className="pb-2">
+                <Tabs value={tab} onValueChange={setTab}>
+                    <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+                        {TABS.map((entry) => (
+                            <TabsTrigger key={entry.value} value={entry.value} className="gap-1.5">
+                                {entry.label}
+                                {tabHasError(entry.prefixes) && <span className="inline-block size-1.5 rounded-full bg-destructive" />}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Párrafos de introducción</h3>
-                    <RepeaterList
-                        items={introParagraphs}
-                        onChange={setIntroParagraphs}
-                        addLabel="Agregar párrafo"
-                        fields={[{ key: 'text', label: 'Texto', type: 'textarea', span: 'full' }]}
-                    />
-                </Card>
+                    <TabsContent value="portada" forceMount className={cn(tab !== 'portada' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Portada (hero)</h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Titular" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.hero_headline} onChange={set('hero_headline')} />
+                                    <InputError className="mt-1.5" message={errors.hero_headline} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Etiqueta del botón de cierre" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.cta_label} onChange={set('cta_label')} />
+                                    <InputError className="mt-1.5" message={errors.cta_label} />
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <InputLabel value="Subtexto" />
+                                    <Textarea rows={2} className="mt-1.5" value={fields.hero_subtext} onChange={set('hero_subtext')} />
+                                    <InputError className="mt-1.5" message={errors.hero_subtext} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Imagen de portada" />
+                                    {heroPreview && <img src={heroPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
+                                    <label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+                                        <Upload className="size-4" />
+                                        {heroFile ? heroFile.name : 'Reemplazar imagen'}
+                                        <input type="file" accept="image/*" className="hidden" onChange={handleFile(setHeroFile, setHeroPreview)} />
+                                    </label>
+                                    <TextInput
+                                        className="mt-2 w-full"
+                                        placeholder="Texto alternativo"
+                                        value={heroAlt}
+                                        onChange={(e) => {
+                                            setHeroAlt(e.target.value);
+                                            markDirty();
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Imagen de detalle" />
+                                    {detailPreview && <img src={detailPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
+                                    <label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+                                        <Upload className="size-4" />
+                                        {detailFile ? detailFile.name : 'Reemplazar imagen'}
+                                        <input type="file" accept="image/*" className="hidden" onChange={handleFile(setDetailFile, setDetailPreview)} />
+                                    </label>
+                                    <TextInput
+                                        className="mt-2 w-full"
+                                        placeholder="Texto alternativo"
+                                        value={detailAlt}
+                                        onChange={(e) => {
+                                            setDetailAlt(e.target.value);
+                                            markDirty();
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </Card>
+                    </TabsContent>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Servicios</h3>
-                    <RepeaterList
-                        items={services}
-                        onChange={setServices}
-                        addLabel="Agregar servicio"
-                        fields={[
-                            { key: 'number', label: 'Número' },
-                            { key: 'title', label: 'Título' },
-                            { key: 'description', label: 'Descripción', type: 'textarea', span: 'full' },
-                        ]}
-                    />
-                </Card>
+                    <TabsContent value="intro" forceMount className={cn(tab !== 'intro' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Párrafos de introducción</h3>
+                            <RepeaterList
+                                items={introParagraphs}
+                                onChange={bindList(setIntroParagraphs)}
+                                addLabel="Agregar párrafo"
+                                fields={[{ key: 'text', label: 'Texto', type: 'textarea', span: 'full' }]}
+                            />
+                            <InputError className="mt-1.5" message={errors.intro_paragraphs} />
+                        </Card>
+                    </TabsContent>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Hitos</h3>
-                    <RepeaterList
-                        items={milestones}
-                        onChange={setMilestones}
-                        addLabel="Agregar hito"
-                        fields={[
-                            { key: 'year', label: 'Año' },
-                            { key: 'text', label: 'Descripción' },
-                        ]}
-                    />
-                </Card>
+                    <TabsContent value="servicios" forceMount className={cn(tab !== 'servicios' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Servicios</h3>
+                            <RepeaterList
+                                items={services}
+                                onChange={bindList(setServices)}
+                                addLabel="Agregar servicio"
+                                fields={[
+                                    { key: 'number', label: 'Número' },
+                                    { key: 'title', label: 'Título' },
+                                    { key: 'description', label: 'Descripción', type: 'textarea', span: 'full' },
+                                ]}
+                            />
+                            <InputError className="mt-1.5" message={errors.services} />
+                        </Card>
+                    </TabsContent>
 
-                <div className="flex justify-end">
-                    <Button type="submit" disabled={processing}>
-                        {processing ? 'Guardando...' : 'Guardar cambios'}
-                    </Button>
-                </div>
+                    <TabsContent value="hitos" forceMount className={cn(tab !== 'hitos' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Hitos</h3>
+                            <RepeaterList
+                                items={milestones}
+                                onChange={bindList(setMilestones)}
+                                addLabel="Agregar hito"
+                                fields={[
+                                    { key: 'year', label: 'Año' },
+                                    { key: 'text', label: 'Descripción' },
+                                ]}
+                            />
+                            <InputError className="mt-1.5" message={errors.milestones} />
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+
+                <StickySaveBar dirty={dirty} processing={processing} />
             </form>
         </AdminLayout>
     );

@@ -2,14 +2,23 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Upload } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
+import StickySaveBar from '@/Components/ui/StickySaveBar';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import Textarea from '@/Components/Textarea';
 import InputError from '@/Components/InputError';
 import RepeaterList from '@/Components/ui/RepeaterList';
 import ServiceRepeater from '@/Components/ui/ServiceRepeater';
+import { cn } from '@/lib/utils';
+
+const TABS = [
+    { value: 'portada', label: 'Portada', prefixes: ['hero_'] },
+    { value: 'estudio', label: 'Sobre el estudio', prefixes: ['about_'] },
+    { value: 'listas', label: 'Listas', prefixes: ['stats', 'services', 'credits'] },
+    { value: 'cierre', label: 'Portafolio y cierre', prefixes: ['portfolio_', 'cta_'] },
+];
 
 export default function HomeContentEdit({ content, errors: serverErrors }) {
     const [fields, setFields] = useState({
@@ -33,8 +42,18 @@ export default function HomeContentEdit({ content, errors: serverErrors }) {
     const [services, setServices] = useState(content.services ?? []);
     const [credits, setCredits] = useState(content.credits ?? []);
     const [processing, setProcessing] = useState(false);
+    const [dirty, setDirty] = useState(false);
+    const [tab, setTab] = useState('portada');
 
-    const set = (key) => (event) => setFields((prev) => ({ ...prev, [key]: event.target.value }));
+    const markDirty = () => setDirty(true);
+    const set = (key) => (event) => {
+        setFields((prev) => ({ ...prev, [key]: event.target.value }));
+        markDirty();
+    };
+    const bindList = (setter) => (value) => {
+        setter(value);
+        markDirty();
+    };
 
     const handleHeroFile = (event) => {
         const file = event.target.files?.[0] ?? null;
@@ -42,6 +61,7 @@ export default function HomeContentEdit({ content, errors: serverErrors }) {
         if (file) {
             setHeroPreview(URL.createObjectURL(file));
         }
+        markDirty();
     };
 
     const submit = (event) => {
@@ -70,127 +90,156 @@ export default function HomeContentEdit({ content, errors: serverErrors }) {
         router.post(route('admin.content.home.update'), payload, {
             forceFormData: true,
             preserveScroll: true,
+            onSuccess: () => setDirty(false),
+            onError: (formErrors) => {
+                const firstBadTab = TABS.find((entry) =>
+                    Object.keys(formErrors).some((key) =>
+                        entry.prefixes.some((prefix) => key === prefix || key.startsWith(prefix)),
+                    ),
+                );
+                if (firstBadTab) setTab(firstBadTab.value);
+            },
             onFinish: () => setProcessing(false),
         });
     };
 
     const errors = serverErrors ?? {};
+    const tabHasError = (prefixes) =>
+        Object.keys(errors).some((key) => prefixes.some((prefix) => key === prefix || key.startsWith(prefix)));
 
     return (
         <AdminLayout title="Inicio" header="Contenido: Inicio" description="Secciones de la página de inicio del sitio público.">
-            <form onSubmit={submit} className="space-y-6">
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Portada (hero)</h3>
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <InputLabel value="Titular" />
-                            <TextInput className="mt-1.5 w-full" value={fields.hero_headline} onChange={set('hero_headline')} required />
-                            <InputError className="mt-1.5" message={errors.hero_headline} />
-                        </div>
-                        <div>
-                            <InputLabel value="Etiqueta botón principal" />
-                            <TextInput className="mt-1.5 w-full" value={fields.hero_cta_primary_label} onChange={set('hero_cta_primary_label')} required />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <InputLabel value="Subtexto" />
-                            <Textarea rows={2} className="mt-1.5" value={fields.hero_subtext} onChange={set('hero_subtext')} required />
-                            <InputError className="mt-1.5" message={errors.hero_subtext} />
-                        </div>
-                        <div>
-                            <InputLabel value="Etiqueta botón secundario" />
-                            <TextInput className="mt-1.5 w-full" value={fields.hero_cta_secondary_label} onChange={set('hero_cta_secondary_label')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Imagen de portada" />
-                            {heroPreview && <img src={heroPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
-                            <label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary">
-                                <Upload className="size-4" />
-                                {heroFile ? heroFile.name : 'Reemplazar imagen'}
-                                <input type="file" accept="image/*" className="hidden" onChange={handleHeroFile} />
-                            </label>
-                            <TextInput
-                                className="mt-2 w-full"
-                                placeholder="Texto alternativo"
-                                value={heroAlt}
-                                onChange={(event) => setHeroAlt(event.target.value)}
+            <form onSubmit={submit} className="pb-2">
+                <Tabs value={tab} onValueChange={setTab}>
+                    <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+                        {TABS.map((entry) => (
+                            <TabsTrigger key={entry.value} value={entry.value} className="gap-1.5">
+                                {entry.label}
+                                {tabHasError(entry.prefixes) && <span className="inline-block size-1.5 rounded-full bg-destructive" />}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+
+                    <TabsContent value="portada" forceMount className={cn(tab !== 'portada' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Portada (hero)</h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Titular" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.hero_headline} onChange={set('hero_headline')} />
+                                    <InputError className="mt-1.5" message={errors.hero_headline} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Etiqueta botón principal" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.hero_cta_primary_label} onChange={set('hero_cta_primary_label')} />
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <InputLabel value="Subtexto" />
+                                    <Textarea rows={2} className="mt-1.5" value={fields.hero_subtext} onChange={set('hero_subtext')} />
+                                    <InputError className="mt-1.5" message={errors.hero_subtext} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Etiqueta botón secundario" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.hero_cta_secondary_label} onChange={set('hero_cta_secondary_label')} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Imagen de portada" />
+                                    {heroPreview && <img src={heroPreview} alt="" className="mt-1.5 h-32 w-full rounded-lg object-cover" />}
+                                    <label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+                                        <Upload className="size-4" />
+                                        {heroFile ? heroFile.name : 'Reemplazar imagen'}
+                                        <input type="file" accept="image/*" className="hidden" onChange={handleHeroFile} />
+                                    </label>
+                                    <TextInput
+                                        className="mt-2 w-full"
+                                        placeholder="Texto alternativo"
+                                        value={heroAlt}
+                                        onChange={(event) => {
+                                            setHeroAlt(event.target.value);
+                                            markDirty();
+                                        }}
+                                    />
+                                    <InputError className="mt-1.5" message={errors.hero_image} />
+                                </div>
+                            </div>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="estudio" forceMount className={cn(tab !== 'estudio' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Sobre el estudio</h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Encabezado" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.about_heading} onChange={set('about_heading')} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Etiqueta del botón" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.about_cta_label} onChange={set('about_cta_label')} />
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <InputLabel value="Texto" />
+                                    <Textarea rows={3} className="mt-1.5" value={fields.about_text} onChange={set('about_text')} />
+                                </div>
+                            </div>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="listas" forceMount className={cn('space-y-6', tab !== 'listas' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Estadísticas</h3>
+                            <RepeaterList
+                                items={stats}
+                                onChange={bindList(setStats)}
+                                addLabel="Agregar estadística"
+                                fields={[
+                                    { key: 'value', label: 'Valor' },
+                                    { key: 'label', label: 'Descripción' },
+                                ]}
                             />
-                            <InputError className="mt-1.5" message={errors.hero_image} />
-                        </div>
-                    </div>
-                </Card>
+                        </Card>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Sobre el estudio</h3>
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <InputLabel value="Encabezado" />
-                            <TextInput className="mt-1.5 w-full" value={fields.about_heading} onChange={set('about_heading')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Etiqueta del botón" />
-                            <TextInput className="mt-1.5 w-full" value={fields.about_cta_label} onChange={set('about_cta_label')} required />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <InputLabel value="Texto" />
-                            <Textarea rows={3} className="mt-1.5" value={fields.about_text} onChange={set('about_text')} required />
-                        </div>
-                    </div>
-                </Card>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Servicios</h3>
+                            <ServiceRepeater items={services} onChange={bindList(setServices)} />
+                        </Card>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Estadísticas</h3>
-                    <RepeaterList
-                        items={stats}
-                        onChange={setStats}
-                        addLabel="Agregar estadística"
-                        fields={[
-                            { key: 'value', label: 'Valor' },
-                            { key: 'label', label: 'Descripción' },
-                        ]}
-                    />
-                </Card>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Reconocimientos</h3>
+                            <RepeaterList items={credits} onChange={bindList(setCredits)} addLabel="Agregar reconocimiento" fields={[{ key: 'name', label: 'Nombre' }]} />
+                        </Card>
+                    </TabsContent>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Servicios</h3>
-                    <ServiceRepeater items={services} onChange={setServices} />
-                </Card>
+                    <TabsContent value="cierre" forceMount className={cn(tab !== 'cierre' && 'hidden')}>
+                        <Card className="p-6 shadow-soft">
+                            <h3 className="mb-4 font-display text-base font-semibold">Portafolio y cierre</h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Encabezado de portafolio" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.portfolio_heading} onChange={set('portfolio_heading')} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Encabezado de cierre" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.cta_heading} onChange={set('cta_heading')} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Texto de portafolio" />
+                                    <Textarea rows={2} className="mt-1.5" value={fields.portfolio_text} onChange={set('portfolio_text')} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Texto de cierre" />
+                                    <Textarea rows={2} className="mt-1.5" value={fields.cta_text} onChange={set('cta_text')} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Etiqueta del botón de cierre" />
+                                    <TextInput className="mt-1.5 w-full" value={fields.cta_button_label} onChange={set('cta_button_label')} />
+                                </div>
+                            </div>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
 
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Reconocimientos</h3>
-                    <RepeaterList items={credits} onChange={setCredits} addLabel="Agregar reconocimiento" fields={[{ key: 'name', label: 'Nombre' }]} />
-                </Card>
-
-                <Card className="p-6 shadow-soft">
-                    <h3 className="mb-4 font-display text-base font-semibold">Portafolio y cierre</h3>
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <InputLabel value="Encabezado de portafolio" />
-                            <TextInput className="mt-1.5 w-full" value={fields.portfolio_heading} onChange={set('portfolio_heading')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Encabezado de cierre" />
-                            <TextInput className="mt-1.5 w-full" value={fields.cta_heading} onChange={set('cta_heading')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Texto de portafolio" />
-                            <Textarea rows={2} className="mt-1.5" value={fields.portfolio_text} onChange={set('portfolio_text')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Texto de cierre" />
-                            <Textarea rows={2} className="mt-1.5" value={fields.cta_text} onChange={set('cta_text')} required />
-                        </div>
-                        <div>
-                            <InputLabel value="Etiqueta del botón de cierre" />
-                            <TextInput className="mt-1.5 w-full" value={fields.cta_button_label} onChange={set('cta_button_label')} required />
-                        </div>
-                    </div>
-                </Card>
-
-                <div className="flex justify-end">
-                    <Button type="submit" disabled={processing}>
-                        {processing ? 'Guardando...' : 'Guardar cambios'}
-                    </Button>
-                </div>
+                <StickySaveBar dirty={dirty} processing={processing} />
             </form>
         </AdminLayout>
     );
