@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AboutContentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactContentController;
+use App\Http\Controllers\Admin\ContactFormOptionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HomeContentController;
 use App\Http\Controllers\Admin\MediaController;
@@ -51,6 +52,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
         Route::get('contact', [ContactContentController::class, 'edit'])->name('contact');
         Route::put('contact', [ContactContentController::class, 'update'])->name('contact.update');
+
+        Route::get('form-options', [ContactFormOptionController::class, 'index'])->name('form-options');
+        Route::post('form-options', [ContactFormOptionController::class, 'store'])->name('form-options.store');
+        Route::put('form-options/{formOption}', [ContactFormOptionController::class, 'update'])->name('form-options.update');
+        Route::delete('form-options/{formOption}', [ContactFormOptionController::class, 'destroy'])->name('form-options.destroy');
 
         Route::get('settings', [SiteSettingController::class, 'edit'])->name('settings');
         Route::put('settings', [SiteSettingController::class, 'update'])->name('settings.update');

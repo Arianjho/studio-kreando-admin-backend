@@ -56,6 +56,7 @@ const navGroups = [
                     { title: 'Inicio', path: 'admin.content.home' },
                     { title: 'Nosotros', path: 'admin.content.about' },
                     { title: 'Contacto', path: 'admin.content.contact' },
+                    { title: 'Formulario de contacto', path: 'admin.content.form-options' },
                     { title: 'Ajustes generales', path: 'admin.content.settings' },
                 ],
             },

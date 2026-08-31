@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\AboutContent;
 use App\Models\Category;
 use App\Models\ContactContent;
+use App\Models\ContactFormOption;
 use App\Models\HomeContent;
 use App\Models\Media;
 use App\Models\Project;
@@ -33,6 +34,8 @@ class ContentSeeder extends Seeder
         $this->seedAbout();
         $this->seedContact();
         $this->seedSiteSettings();
+
+        ContactFormOption::seedDefaults();
     }
 
     protected function uploadMedia(string $sourceFilename, string $alt): Media

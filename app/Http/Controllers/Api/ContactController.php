@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\ContactContent;
+use App\Models\ContactFormOption;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
@@ -24,6 +25,7 @@ class ContactController extends Controller
             'email' => $contact->email,
             'phone' => $contact->phone,
             'hours' => $contact->hours,
+            'form' => ContactFormOption::grouped(),
         ]);
     }
 }

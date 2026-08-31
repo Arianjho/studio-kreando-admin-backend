@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\ContactFormOption;
 use App\Models\Message;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -75,6 +76,20 @@ class StoreMessageTest extends TestCase
         $this->postJson('/api/v1/messages', $this->payload(['budget' => '10 dólares']))
             ->assertStatus(422)
             ->assertJsonValidationErrors('budget');
+    }
+
+    public function test_validation_follows_the_admin_managed_option_lists(): void
+    {
+        // Only these two project types exist -> "Vivienda" (a config default) is now invalid.
+        ContactFormOption::factory()->group('project_type')->create(['label' => 'Náutico']);
+        ContactFormOption::factory()->group('project_type')->create(['label' => 'Educativo']);
+
+        $this->postJson('/api/v1/messages', $this->payload(['project_type' => 'Vivienda']))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('project_type');
+
+        $this->postJson('/api/v1/messages', $this->payload(['project_type' => 'Náutico', 'services' => [], 'budget' => null, 'timeline' => null, 'intervention' => null]))
+            ->assertCreated();
     }
 
     public function test_message_endpoint_is_throttled(): void
