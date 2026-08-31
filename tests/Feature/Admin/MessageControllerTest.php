@@ -28,6 +28,44 @@ class MessageControllerTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_search_filters_messages_by_name_email_or_message_body(): void
+    {
+        $user = User::factory()->create();
+        Message::factory()->create(['name' => 'Lucía Fernández', 'email' => 'lucia@example.com', 'message' => 'Casa de playa']);
+        Message::factory()->create(['name' => 'Otro', 'email' => 'otro@example.com', 'message' => 'Local comercial']);
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.index', ['search' => 'lucia']))
+            ->assertInertia(fn ($page) => $page
+                ->where('messages.total', 1)
+                ->where('messages.data.0.email', 'lucia@example.com'));
+    }
+
+    public function test_project_type_and_status_filters_narrow_the_list(): void
+    {
+        $user = User::factory()->create();
+        Message::factory()->create(['project_type' => 'Vivienda', 'read' => false]);
+        Message::factory()->create(['project_type' => 'Vivienda', 'read' => true]);
+        Message::factory()->create(['project_type' => 'Comercial', 'read' => false]);
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.index', ['project_type' => 'Vivienda']))
+            ->assertInertia(fn ($page) => $page->where('messages.total', 2));
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.index', ['project_type' => 'Vivienda', 'status' => 'new']))
+            ->assertInertia(fn ($page) => $page->where('messages.total', 1));
+    }
+
+    public function test_index_exposes_the_managed_project_type_options_for_the_filter(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.index'))
+            ->assertInertia(fn ($page) => $page->has('projectTypes'));
+    }
+
     public function test_authenticated_user_can_mark_message_as_read(): void
     {
         $user = User::factory()->create();
