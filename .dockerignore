@@ -1,0 +1,25 @@
+.git
+.gitattributes
+.gitignore
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+# Cache de paquetes/config generada en local (incluye dev deps como
+# laravel/pail); se regenera sola en el contenedor con composer install --no-dev.
+bootstrap/cache/*.php
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/logs/.gitignore
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
+tests
+.phpunit.result.cache
+README.md
+CLAUDE.md
+AGENTS.md
+CONTEXT.md

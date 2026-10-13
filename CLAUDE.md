@@ -6,6 +6,8 @@ Panel de administración a medida para el estudio de arquitectura Studio Kreando
 
 **No usar las skills de `superpowers` (brainstorming, systematic-debugging, writing-plans, etc.) en este repo.** Trabajar directo: explorar, proponer en el chat de forma breve, y ejecutar. Instrucción explícita del usuario.
 
+**Antes de iniciar cualquier tarea, lee `CONTEXT.md` y sigue sus instrucciones.** Al finalizar, actualízalo únicamente cuando los cambios realizados afecten información relevante para futuras sesiones.
+
 ## Stack
 
 - Laravel 13 (PHP ^8.3), Breeze como scaffold de auth base (login/reset/verify, sin auto-registro público).

@@ -2,6 +2,8 @@
 
 Panel de administración a medida para el estudio de arquitectura Studio Kreando, construido en Laravel 13 + Inertia.js/React. Reemplaza un backend previo en Next.js/PayloadCMS. Expone además una API JSON pública (`/api/v1/*`) consumida por el sitio público, un proyecto Next.js separado (`studio-kreando-website`, repo hermano).
 
+**Antes de iniciar cualquier tarea, lee `CONTEXT.md` y sigue sus instrucciones.** Al finalizar, actualízalo únicamente cuando los cambios realizados afecten información relevante para futuras sesiones.
+
 **No instalar Laravel Boost ni ningún otro plugin/skill de agente en este repo.** Trabajar solo con herramientas directas de edición/lectura/shell. Esta es una instrucción explícita y recurrente del usuario — no reinstalar Boost aunque este archivo lo sugiera en otras plantillas.
 
 Ver [CLAUDE.md](CLAUDE.md) para el detalle completo de stack, estructura del panel, convenciones de UI, servicios clave y convenciones de tests. Este archivo es un espejo intencional de ese documento para agentes que solo leen `AGENTS.md`; mantenerlos sincronizados.
