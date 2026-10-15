@@ -11,7 +11,7 @@ use Illuminate\Http\UploadedFile;
  */
 class MediaUploadService
 {
-    public static function store(UploadedFile $file, string $alt, string $disk = 'public'): Media
+    public static function store(UploadedFile $file, string $alt, string $disk = 'r2'): Media
     {
         $path = $file->store('media', $disk);
 

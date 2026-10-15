@@ -229,6 +229,7 @@ Funcional y en desarrollo activo. CRUD de proyectos/categorías/medios/usuarios,
 - **Revalidación ISR** (`App\Services\RevalidateService::trigger($tag)`): webhook firmado hacia `studio-kreando-website` (`/api/revalidate`, `REVALIDATE_URL`/`REVALIDATE_SECRET`). Fallos de red no son fatales, solo `WARNING` en log. Cada controlador de escritura debe llamarlo con el tag correspondiente antes del `return`.
 - **Email**: sin proveedor configurado. `MAIL_MAILER=log` (escribe en `storage/logs/laravel.log`, no entrega real). Ningún flujo actual envía correo (las consultas de contacto solo se persisten en BD).
 - **Scramble** (`dedoc/scramble`): genera OpenAPI de `/api/v1/*` por análisis estático, sin anotaciones obligatorias.
+- **Cloudflare R2** (disco `r2` en `config/filesystems.php`, driver `s3` vía `league/flysystem-aws-s3-v3`): storage de todos los `Media` (imágenes/videos subidos por el admin). Bucket `studio-kreanddo`, endpoint S3 `AWS_ENDPOINT` (`https://<ACCOUNT_ID>.r2.cloudflarestorage.com`, **sin** el bucket en la ruta), dominio público conectado `AWS_URL=https://storage.kreanddo.com`, `AWS_DEFAULT_REGION=auto`, `AWS_USE_PATH_STYLE_ENDPOINT=true`. `App\Services\MediaUploadService::store()` usa este disco por defecto. Los `Media` creados antes de este cambio quedan con `disk=public` (local) y se siguen sirviendo igual — `Media::url` resuelve por el `disk` de cada fila, no hay migración automática de archivos viejos a R2.
 
 ## 11. Decisiones técnicas importantes
 
@@ -242,8 +243,6 @@ Funcional y en desarrollo activo. CRUD de proyectos/categorías/medios/usuarios,
   generada en local con dependencias de dev (p. ej. `laravel/pail`) y
   rompen el contenedor si se copian, porque el build de imagen usa
   `composer install --no-dev`.
-
-
 - Un solo branch de trabajo: `main` (se hizo merge/rename desde `master` + `laravel-rewrite`, sin remoto).
 - Tailwind v4 sin archivo de config; toda la paleta/tema vive en `resources/css/app.css`.
 - Envelope de respuesta uniforme (`ApiResponse`) en toda la API pública; Scramble lo infiere sin anotaciones extra.
@@ -255,9 +254,13 @@ Funcional y en desarrollo activo. CRUD de proyectos/categorías/medios/usuarios,
 - Decidir si se agrega notificación por email al llegar una consulta nueva (requiere elegir proveedor: Resend, SMTP de Gmail, etc. — ninguno instalado aún).
 - Unificar naming de marca: textos usan "Studio Kreando", el logo dice "KreanDDO Arquitectos" (sin resolver).
 - Evaluar si páginas de contenido/formularios necesitan su propio `max-w` ahora que el cap global del layout admin se quitó.
+- Decidir si se migran a R2 los `Media` existentes que todavía están en el disco local `public` (opcional, no bloqueante).
+- `composer audit` reporta 3 advisories preexistentes (no introducidos por R2): XSS bajo en `laravel/framework` (CVE-2026-102279, corrige con `>=13.30.0`) y 2 en `league/commonmark` (dependencia transitiva, probablemente de Scramble/docs). Evaluar actualizar.
 
 ## 13. Último estado relevante
 
 CONTEXT.md inicializado (2026-09-13) a partir del código y configuración reales del repo en `main`, commit `0a8e8c2` ("Consultas: drop server pagination, always show the WhatsApp action"). Módulo de consultas ya migrado por completo de "Messages" a "Consultas" con pipeline de 3 estados y respuesta por WhatsApp; dashboard e identidad visual de marca ya implementados.
 
 2026-10-12: agregado `Dockerfile` + `docker/` (nginx, supervisord, entrypoint) + `.dockerignore` para desplegar en Dokploy. Build y arranque verificados localmente end-to-end (migró, seedeó `ContentSeeder` y sirvió `/api/v1/*` con datos reales desde el contenedor). De paso se corrigió `resources/js/Components/ui/Badge.jsx` → `badge.jsx`: en Windows el casing distinto del import (`@/Components/ui/badge`) no daba error, pero en Linux (y por tanto en el build de Docker) sí, por case-sensitivity del filesystem.
+
+2026-10-15: agregado disco `r2` (Cloudflare R2) para `Media`, ver sección 10. Instalado `league/flysystem-aws-s3-v3`. Probado end-to-end dentro del contenedor Docker (put/exists/get/delete contra el bucket real + lectura pública vía `storage.kreanddo.com`, HTTP 200). Credenciales reales solo en `.env` local (gitignored), no en el repo.
