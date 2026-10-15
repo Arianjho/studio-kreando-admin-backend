@@ -39,7 +39,11 @@ export default function StatCard({ label, value, hint, icon: Icon, href, accent 
             <div className="min-w-0">
                 <p className="text-sm text-muted-foreground">{label}</p>
                 <p className="mt-0.5 font-display text-2xl font-bold leading-tight">{value}</p>
-                {hint && <p className="mt-0.5 truncate text-xs text-muted-foreground">{hint}</p>}
+                {/* Siempre se renderiza, incluso sin hint, para que todas las cards
+                    de una misma fila mantengan la misma altura de contenido. */}
+                <p className="mt-0.5 truncate text-xs text-muted-foreground" aria-hidden={!hint}>
+                    {hint || ' '}
+                </p>
             </div>
         </Card>
     );
